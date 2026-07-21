@@ -1,8 +1,5 @@
 {
   "build": {
     "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "npx http-server . -p 3000"
   }
 }
