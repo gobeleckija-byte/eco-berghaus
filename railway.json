@@ -3,6 +3,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npx serve . -p 3000"
+    "startCommand": "npx http-server . -p 3000"
   }
 }
