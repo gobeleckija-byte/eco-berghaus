@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін панель - Дашборд</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    
+    <!-- Floating Icons -->
+    <svg class="floating-icon icon-1" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 2L2 7l10  5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+    <svg class="floating-icon icon-2" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <line x1="9" y1="21" x2="9" y2="9"/>
+    </svg>
+    
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10  5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <h2>Адмін панель</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-section="dashboard-section">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    <span>Дашборд</span>
+                </div>
+                <div class="menu-item" data-section="bookings-section">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span>Бронювання</span>
+                </div>
+                <div class="menu-item" data-section="cottages-section">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    <span>Котеджі</span>
+                </div>
+                <div class="menu-item" data-section="clients-section">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span>Клієнти</span>
+                </div>
+                <div class="menu-item" data-section="settings-section">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span>Налаштування</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Вийти
+                </button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section active">
+                <div class="page-header">
+                    <div>
+                        <h1>Дашборд</h1>
+                        <p>Огляд статистики та останніх бронювань</p>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-icon blue">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Всього бронювань</h3>
+                        <div class="value" id="total-bookings">0</div>
+                        <div class="change positive">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                <polyline points="17 6 23 6 23 12"/>
+                            </svg>
+                            +0% за цей місяць
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-icon green">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Активні бронювання</h3>
+                        <div class="value" id="active-bookings">0</div>
+                        <div class="change positive">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                <polyline points="17 6 23 6 23 12"/>
+                            </svg>
+                            +0% за цей місяць
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-icon purple">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="1" x2="12" y2="23"/>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Дохід</h3>
+                        <div class="value" id="revenue">0 ₴</div>
+                        <div class="change positive">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                <polyline points="17 6 23 6 23 12"/>
+                            </svg>
+                            +0% за цей місяць
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-icon orange">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                                    <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Завантаження</h3>
+                        <div class="value" id="occupancy">0%</div>
+                        <div class="change negative">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                                <polyline points="17 18 23 18 23 12"/>
+                            </svg>
+                            -0% за цей місяць
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <h2>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        Останні бронювання
+                    </h2>
+                    <div class="recent-bookings">
+                        <div class="placeholder-content">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10 9 9 9 8 9"/>
+                                </svg>
+                            </div>
+                            <p>Завантаження даних...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bookings Section -->
+            <div id="bookings-section" class="section">
+                <div class="page-header">
+                    <div>
+                        <h1>Бронювання</h1>
+                        <p>Керування всіма бронюваннями</p>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label>Статус</label>
+                            <select id="status-filter">
+                                <option value="">Всі</option>
+                                <option value="pending">Очікує</option>
+                                <option value="confirmed">Підтверджено</option>
+                                <option value="cancelled">Скасовано</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Пошук</label>
+                            <input type="text" id="search-input" placeholder="Пошук за іменем або телефоном">
+                        </div>
+                    </div>
+                    
+                    <table class="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>Ім'я</th>
+                                <th>Телефон</th>
+                                <th>Заїзд</th>
+                                <th>Виїзд</th>
+                                <th>Гості</th>
+                                <th>Статус</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-table-body">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
+                                    Завантаження...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Cottages Section -->
+            <div id="cottages-section" class="section">
+                <div class="page-header">
+                    <div>
+                        <h1>Котеджі</h1>
+                        <p>Керування котеджами</p>
+                    </div>
+                    <button class="btn-add" onclick="openCottageModal()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Додати котедж
+                    </button>
+                </div>
+                
+                <div class="content-section">
+                    <div class="cottages-grid" id="cottages-grid">
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.5;">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                            <p>Завантаження котеджів...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cottage Modal -->
+            <div id="cottage-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modal-title">Додати котедж</h2>
+                        <button class="modal-close" onclick="closeCottageModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <form id="cottage-form" onsubmit="saveCottage(event)">
+                        <input type="hidden" id="cottage-id">
+                        
+                        <div class="form-group">
+                            <label for="cottage-name">Назва котеджу *</label>
+                            <input type="text" id="cottage-name" required placeholder="Наприклад: Котедж з однією спальнею">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cottage-guests">Кількість гостей *</label>
+                                <input type="number" id="cottage-guests" required min="1" placeholder="2">
+                            </div>
+                            <div class="form-group">
+                                <label for="cottage-numbers">Номери котеджів *</label>
+                                <input type="text" id="cottage-numbers" required placeholder="102, 103, 106">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cottage-floors">Поверхів *</label>
+                                <input type="number" id="cottage-floors" required min="1" placeholder="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="cottage-bedrooms">Спалень *</label>
+                                <input type="number" id="cottage-bedrooms" required min="1" placeholder="1">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cottage-price">Ціна за ніч (₴) *</label>
+                            <input type="number" id="cottage-price" required min="0" step="0.01" placeholder="11034.59">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cottage-tariff">Тариф</label>
+                            <input type="text" id="cottage-tariff" placeholder="Rack Rate">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cottage-status">Статус</label>
+                            <select id="cottage-status">
+                                <option value="active">Активний</option>
+                                <option value="inactive">Неактивний</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cottage-description">Опис *</label>
+                            <textarea id="cottage-description" required rows="6" placeholder="Опишіть котедж, його переваги та зручності..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cottage-photos">Фото (URL через кому)</label>
+                            <input type="text" id="cottage-photos" placeholder="https://example.com/photo1.jpg, https://example.com/photo2.jpg">
+                        </div>
+                        
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" onclick="closeCottageModal()">Скасувати</button>
+                            <button type="submit" class="btn-save">Зберегти</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Clients Section -->
+            <div id="clients-section" class="section">
+                <div class="page-header">
+                    <div>
+                        <h1>Клієнти</h1>
+                        <p>Керування клієнтами</p>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <table class="clients-table">
+                        <thead>
+                            <tr>
+                                <th>Клієнт</th>
+                                <th>Телефон</th>
+                                <th>Бронювань</th>
+                                <th>Останнє бронювання</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clients-table-body">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
+                                    Завантаження...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Settings Section -->
+            <div id="settings-section" class="section">
+                <div class="page-header">
+                    <h1>Налаштування</h1>
+                    <p>Керування налаштуваннями системи</p>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        Загальні налаштування
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h3>Назва сайту</h3>
+                            <p>Введіть назву вашого сайту</p>
+                            <div class="form-group">
+                                <label>Назва</label>
+                                <input type="text" value="Eco Berghaus">
+                            </div>
+                            <button class="btn-save">Зберегти</button>
+                        </div>
+                        <div class="setting-card">
+                            <h3>Контакти</h3>
+                            <p>Налаштування контактної інформації</p>
+                            <div class="form-group">
+                                <label>Телефон</label>
+                                <input type="text" value="+380 123 456 7890">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" value="info@ecoberghaus.com.ua">
+                            </div>
+                            <button class="btn-save">Зберегти</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        Сповіщення
+                    </div>
+                    <div class="setting-card">
+                        <div class="toggle-switch">
+                            <div class="toggle-label">
+                                Telegram сповіщення
+                                <span>Отримувати сповіщення про нові бронювання</span>
+                            </div>
+                            <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                        </div>
+                        <div class="toggle-switch">
+                            <div class="toggle-label">
+                                Email сповіщення
+                                <span>Отримувати email про нові бронювання</span>
+                            </div>
+                            <div class="toggle" onclick="this.classList.toggle('active')"></div>
+                        </div>
+                        <div class="toggle-switch">
+                            <div class="toggle-label">
+                                SMS сповіщення
+                                <span>Надсилати SMS клієнтам</span>
+                            </div>
+                            <div class="toggle" onclick="this.classList.toggle('active')"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        Безпека
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h3>Зміна пароля</h3>
+                            <p>Змініть пароль адміністратора</p>
+                            <div class="form-group">
+                                <label>Поточний пароль</label>
+                                <input type="password" placeholder="••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label>Новий пароль</label>
+                                <input type="password" placeholder="••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label>Підтвердіть пароль</label>
+                                <input type="password" placeholder="••••••••">
+                            </div>
+                            <button class="btn-save">Змінити пароль</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

@@ -330,6 +330,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <input type="text" id="checkout" name="checkout" class="form-control" placeholder="Оберіть дату виїзду" required>
       </div>
     </div>
+    <div class="form-group">
+      <label for="cottage-select">Оберіть котедж</label>
+      <select id="cottage-select" name="cottage" class="form-control" required>
+        <option value="">Завантаження котеджів...</option>
+      </select>
+      <div id="cottage-info" style="margin-top: 10px; font-size: 14px; color: #666;"></div>
+      <div id="availability-info" style="margin-top: 10px; font-size: 14px; color: #28a745;"></div>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label for="guest-name">Ім'я</label>
@@ -1038,6 +1046,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 				<div class="elementor-widget-container">
 							<p><a class="footer-soc-link" href="https://www.facebook.com/ecoberghaus/" target="_blank" rel="noopener">facebook</a></p>						</div>
 				</div>
+				<div class="elementor-element elementor-widget-tablet__width-auto elementor-widget elementor-widget-text-editor" data-element_type="widget" data-widget_type="text-editor.default">
+				<div class="elementor-widget-container">
+							<p><a class="footer-soc-link" href="admin.html" style="opacity: 0.5; font-size: 12px;">admin</a></p>						</div>
+				</div>
 					</div>
 				</div>
 					</div>
@@ -1565,6 +1577,7 @@ var elementorFrontendConfig = {"environmentMode":{"edit":false,"wpPreview":false
           guest_phone: bookingData.guest_phone,
           adults_count: parseInt(bookingData.adults_count),
           children_count: parseInt(bookingData.children_count),
+          cottage_id: bookingData.cottage_id,
           status: 'pending'
         }])
         .select();
@@ -1578,19 +1591,156 @@ var elementorFrontendConfig = {"environmentMode":{"edit":false,"wpPreview":false
     }
   }
 
-  // Надсилання даних
+  // ═══════════════════════════════════════════════════════
+  // Cottage loading and availability checking
+  // ═══════════════════════════════════════════════════════
+
+  let allCottages = [];
+
+  async function loadCottages() {
+    try {
+      const { data: cottages, error } = await supabaseClient
+        .from('cottages')
+        .select('*')
+        .eq('status', 'active')
+        .order('name');
+
+      if (error) throw error;
+
+      allCottages = cottages;
+      populateCottageSelect(cottages);
+    } catch (error) {
+      console.error('Error loading cottages:', error);
+      document.getElementById('cottage-select').innerHTML = '<option value="">Помилка завантаження</option>';
+    }
+  }
+
+  function populateCottageSelect(cottages) {
+    const select = document.getElementById('cottage-select');
+    select.innerHTML = '<option value="">Оберіть котедж</option>';
+    
+    cottages.forEach(cottage => {
+      const option = document.createElement('option');
+      option.value = cottage.id;
+      option.textContent = `${cottage.name} - ${parseFloat(cottage.price).toLocaleString('uk-UA')} ₴/ніч`;
+      option.dataset.price = cottage.price;
+      option.dataset.guests = cottage.guest_count;
+      select.appendChild(option);
+    });
+  }
+
+  function showCottageInfo(cottageId) {
+    const cottage = allCottages.find(c => c.id === cottageId);
+    const infoDiv = document.getElementById('cottage-info');
+    
+    if (cottage) {
+      infoDiv.innerHTML = `
+        <strong>${cottage.name}</strong><br>
+        До ${cottage.guest_count} гостей | ${cottage.bedrooms} спалень | ${cottage.floors} поверхів<br>
+        Номери: ${cottage.cottage_numbers}
+      `;
+    } else {
+      infoDiv.innerHTML = '';
+    }
+  }
+
+  async function checkAvailability(cottageId, checkin, checkout) {
+    const availabilityDiv = document.getElementById('availability-info');
+    
+    if (!cottageId || !checkin || !checkout) {
+      availabilityDiv.innerHTML = '';
+      return true;
+    }
+
+    try {
+      const { data: bookings, error } = await supabaseClient
+        .from('bookings')
+        .select('*')
+        .eq('cottage_id', cottageId)
+        .in('status', ['pending', 'confirmed']);
+
+      if (error) throw error;
+
+      const checkinDate = new Date(checkin);
+      const checkoutDate = new Date(checkout);
+
+      let isAvailable = true;
+      let availableFrom = null;
+
+      for (const booking of bookings) {
+        const bookingCheckin = new Date(booking.check_in);
+        const bookingCheckout = new Date(booking.check_out);
+
+        // Check if dates overlap
+        if (checkinDate < bookingCheckout && checkoutDate > bookingCheckin) {
+          isAvailable = false;
+          // Find when it becomes available
+          if (bookingCheckout > checkinDate) {
+            availableFrom = bookingCheckout;
+          }
+        }
+      }
+
+      if (isAvailable) {
+        availabilityDiv.innerHTML = '<span style="color: #28a745;">✓ Доступний на обрані дати</span>';
+        return true;
+      } else {
+        const availableDate = availableFrom ? availableFrom.toLocaleDateString('uk-UA') : 'невідомо';
+        availabilityDiv.innerHTML = `<span style="color: #dc3545;">✗ Недоступний. Доступний з ${availableDate}</span>`;
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking availability:', error);
+      availabilityDiv.innerHTML = '<span style="color: #dc3545;">Помилка перевірки доступності</span>';
+      return false;
+    }
+  }
+
+  // Event listeners for cottage selection
+  document.getElementById('cottage-select').addEventListener('change', function() {
+    const cottageId = this.value;
+    showCottageInfo(cottageId);
+    
+    const checkin = document.getElementById('checkin').value;
+    const checkout = document.getElementById('checkout').value;
+    checkAvailability(cottageId, checkin, checkout);
+  });
+
+  // Update availability when dates change
+  document.getElementById('checkin').addEventListener('change', function() {
+    const cottageId = document.getElementById('cottage-select').value;
+    const checkout = document.getElementById('checkout').value;
+    checkAvailability(cottageId, this.value, checkout);
+  });
+
+  document.getElementById('checkout').addEventListener('change', function() {
+    const cottageId = document.getElementById('cottage-select').value;
+    const checkin = document.getElementById('checkin').value;
+    checkAvailability(cottageId, checkin, this.value);
+  });
+
+  // Load cottages on page load
+  loadCottages();
+
+  // Надсилання даних - перенаправлення на 1.html
   document.getElementById('booking-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     
     const checkin = document.getElementById('checkin').value;
     const checkout = document.getElementById('checkout').value;
-    const guestName = document.getElementById('guest-name').value;
-    const guestPhone = document.getElementById('guest-phone').value;
     const adults = document.getElementById('number-of-adults').value;
     const children = document.getElementById('number-of-children').value;
+    const cottageId = document.getElementById('cottage-select').value;
 
-    if (!checkin || !checkout || !guestName || !guestPhone || !adults || !children) {
+    if (!checkin || !checkout || !adults || !children || !cottageId) {
       alert('Заповніть всі поля!');
+      return;
+    }
+
+    // Check availability
+    const isAvailable = await checkAvailability(cottageId, checkin, checkout);
+    if (!isAvailable) {
+      alert('Обраний котедж недоступний на ці дати. Будь ласка, оберіть інші дати або інший котедж.');
       return;
     }
 
@@ -1601,49 +1751,44 @@ var elementorFrontendConfig = {"environmentMode":{"edit":false,"wpPreview":false
       return;
     }
 
-    // Конвертація дати з DD.MM.YY → YYYY-MM-DD для Supabase
-    function formatDateForSupabase(dateStr) {
-      const [day, month, year] = dateStr.split('.');
-      const fullYear = year.length === 2 ? '20' + year : year;
-      return `${fullYear}-${month}-${day}`;
-    }
-
+    // Prepare booking data
     const bookingData = {
-      check_in: formatDateForSupabase(checkin),
-      check_out: formatDateForSupabase(checkout),
-      guest_name: guestName,
-      guest_phone: guestPhone,
+      check_in: checkin,
+      check_out: checkout,
+      guest_name: document.getElementById('guest-name').value,
+      guest_phone: document.getElementById('guest-phone').value,
       adults_count: adults,
-      children_count: children
+      children_count: children,
+      cottage_id: cottageId
     };
 
-    const submitBtn = document.getElementById('send-data');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Відправка...';
-
-    try {
-      // Відправка в Supabase
-      const supabaseSuccess = await sendToSupabase(bookingData);
-      
-      // Відправка текстового повідомлення в Telegram
-      const telegramSuccess = await sendToTelegram(bookingData);
-      
-      // Відправка Excel файлу в Telegram
-      const excelSuccess = await sendExcelToTelegram(bookingData);
-
-      if (supabaseSuccess && telegramSuccess && excelSuccess) {
-        alert('Дякуємо! Ваше бронювання успішно відправлено. Ми зв\'яжемося з вами найближчим часом.');
-        document.getElementById('booking-form').reset();
-      } else {
-        alert('Сталася помилка при відправці. Спробуйте пізніше або зателефонуйте нам.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Сталася помилка. Спробуйте пізніше.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'бронювати котедж';
+    // Send to Supabase
+    const supabaseSuccess = await sendToSupabase(bookingData);
+    if (!supabaseSuccess) {
+      alert('Помилка збереження бронювання. Спробуйте пізніше.');
+      return;
     }
+
+    // Send to Telegram
+    await sendToTelegram(bookingData);
+
+    // Send Excel to Telegram
+    await sendExcelToTelegram(bookingData);
+
+    // Функція зміни формату дати з DD.MM.YY → MM.DD.YY для Servio
+    function formatDateForUrl(dateStr) {
+      const [day, month, year] = dateStr.split('.');
+      return `${month}.${day}.${year}`;
+    }
+
+    const params = new URLSearchParams({
+      checkin: formatDateForUrl(checkin),
+      checkout: formatDateForUrl(checkout),
+      adults,
+      children
+    });
+
+    window.location.href = `1.html?${params.toString()}`;
   });
 </script>
 
