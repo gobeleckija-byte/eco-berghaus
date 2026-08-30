@@ -2137,46 +2137,11 @@ document.addEventListener("DOMContentLoaded", function () {
 // Supabase Configuration
 const SUPABASE_URL = 'https://xrebwszduxjnuynjownd.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_TyHq1pSH1Fx1VruiJ_XF2w_GZqEU6RT';
-const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function') 
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
+const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
-// Telegram Bot Configuration
-const TELEGRAM_BOT_TOKEN = '8845339263:AAEyY_6gw1xQyJjqBOQ2kxp8tECYoWC2oRE';
-const TELEGRAM_CHAT_ID = '2026196111';
-
-async function sendBookingToTelegram(info) {
-  try {
-    // Прибираємо Markdown-символи з даних гостя, щоб повідомлення не ламалось
-    const tgSafe = (s) => String(s || '').replace(/[_*`\[\]]/g, '');
-
-    const text = `🏡 *НОВЕ БРОНЮВАННЯ #${tgSafe(info.bookingCode)}*\n\n` +
-      `👤 *Гість:* ${tgSafe(info.name)}\n` +
-      `📱 *Телефон:* ${tgSafe(info.phone)}\n` +
-      `🏠 *Котедж:* ${tgSafe(info.cottageName)}\n` +
-      `📅 *Заїзд:* ${tgSafe(info.checkIn)}\n` +
-      `📅 *Виїзд:* ${tgSafe(info.checkOut)}\n` +
-      `👥 *Гості:* ${info.adults} дорослих, ${info.children} дітей\n` +
-      `💰 *Сума:* ${tgSafe(info.price)} ₴\n` +
-      (info.notes ? `📝 *Деталі:* ${tgSafe(info.notes)}\n` : '') +
-      `⏰ *Час:* ${new Date().toLocaleString('uk-UA')}`;
-
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: text,
-        parse_mode: 'Markdown'
-      })
-    });
-    const resData = await res.json();
-    console.log('Telegram send result:', resData);
-  } catch (err) {
-    console.error('Error sending Telegram message:', err);
-  }
-}
+// Telegram-сповіщення надсилає тригер у базі даних після створення бронювання
 
 // Ukrainian month names
 const UA_MONTHS = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 
@@ -2388,30 +2353,21 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       try {
-        if (supabaseClient) {
-          const { data, error } = await supabaseClient
-            .from('promo_codes')
-            .select('*')
-            .eq('code', promoCode)
-            .eq('active', true)
-            .single();
+        // Промокод перевіряє серверна функція: перелік кодів публічно недоступний
+        const { data, error } = await supabaseClient.rpc('validate_promo_code', { p_code: promoCode });
 
-          if (!error && data) {
-            appliedPromo = data;
-            alert(`Промокод "${promoCode}" успішно застосовано! Знижка: ${data.discount}%`);
-            performSearch(false);
-            return;
-          }
+        if (error) throw error;
+
+        if (data && data.status === 'ok') {
+          appliedPromo = { code: data.code, discount: data.discount };
+          alert(`Промокод "${data.code}" успішно застосовано! Знижка: ${data.discount}%`);
+          performSearch(false);
+        } else {
+          alert('Промокод не знайдено, недійсний або вичерпано ліміт використань');
         }
-        
-        // Fallback demo promo
-        appliedPromo = { discount: 10, code: promoCode };
-        alert(`Промокод "${promoCode}" застосовано! Знижка: 10%`);
-        performSearch(false);
       } catch (err) {
-        appliedPromo = { discount: 10, code: promoCode };
-        alert(`Промокод "${promoCode}" застосовано!`);
-        performSearch(false);
+        console.error('Promo validation error:', err);
+        alert('Не вдалося перевірити промокод. Спробуйте ще раз.');
       }
     });
   }
@@ -2922,6 +2878,15 @@ function showBookingConfirmation(bookingCode, name, phone, checkin, checkout, ex
   const d = getCheckoutDetails();
   const e = extra || {};
 
+  // Дані гостя екрануємо перед вставкою в HTML
+  const esc = (s) => String(s || '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+  const safeName = esc(name);
+  const safePhone = esc(phone);
+  const safeEmail = esc(e.email);
+  const safeCottage = esc(currentSelectedCottage ? currentSelectedCottage.name : 'Панорамний котедж');
+
   if (confirmContainer) {
     confirmContainer.style.display = 'block';
     confirmContainer.innerHTML = `
@@ -2932,12 +2897,12 @@ function showBookingConfirmation(bookingCode, name, phone, checkin, checkout, ex
           </svg>
         </div>
         <h2 style="font-size:26px; font-weight:700; color:#0f172a; margin-bottom:8px;">Рахунок #${bookingCode}</h2>
-        <p style="color:#64748b; font-size:15px; margin-bottom:24px;">Бронювання успішно оформлено. Дякуємо, <strong>${name}</strong>!</p>
+        <p style="color:#64748b; font-size:15px; margin-bottom:24px;">Бронювання успішно оформлено. Дякуємо, <strong>${safeName}</strong>!</p>
 
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:20px 24px; text-align:left; margin-bottom:28px;">
           <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
             <span style="color:#64748b;">Котедж:</span>
-            <strong style="color:#0f172a;">${currentSelectedCottage ? currentSelectedCottage.name : 'Панорамний котедж'}</strong>
+            <strong style="color:#0f172a;">${safeCottage}</strong>
           </div>
           <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
             <span style="color:#64748b;">Дати проживання:</span>
@@ -2949,12 +2914,12 @@ function showBookingConfirmation(bookingCode, name, phone, checkin, checkout, ex
           </div>
           <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
             <span style="color:#64748b;">Телефон:</span>
-            <span style="color:#0f172a; font-weight:500;">${phone}</span>
+            <span style="color:#0f172a; font-weight:500;">${safePhone}</span>
           </div>
           ${e.email ? `
           <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
             <span style="color:#64748b;">Електронна пошта:</span>
-            <span style="color:#0f172a; font-weight:500;">${e.email}</span>
+            <span style="color:#0f172a; font-weight:500;">${safeEmail}</span>
           </div>` : ''}
 
           <div style="border-top:1px solid #e2e8f0; margin:14px 0 12px;"></div>
@@ -3060,45 +3025,56 @@ document.addEventListener('DOMContentLoaded', () => {
       if (guestNotes) notesParts.push(`Побажання: ${guestNotes}`);
       const combinedNotes = notesParts.join(' | ');
 
-      const finalPriceFormatted = d.finalPrice.toLocaleString('uk-UA', { minimumFractionDigits: 2 });
-
-      // 1. Save to Supabase
+      // 1. Створюємо бронювання через серверну функцію (валідація + rate-limit),
+      //    Telegram-сповіщення надсилає тригер бази даних
+      let saveOk = true;
       try {
-        if (supabaseClient && currentSelectedCottage) {
-          await supabaseClient.from('bookings').insert([{
+        const clientId = 'web-' + (navigator.userAgent.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24) || 'unknown');
+        const { data, error } = await supabaseClient.rpc('create_booking', {
+          p_data: {
             guest_name: guestName,
             guest_phone: guestPhone,
             check_in: checkinISO,
             check_out: checkoutISO,
             adults_count: adultsCount,
             children_count: childrenCount,
-            cottage_id: (currentSelectedCottage.id && currentSelectedCottage.id.length === 36) ? currentSelectedCottage.id : null,
-            status: 'pending',
+            cottage_id: (currentSelectedCottage && currentSelectedCottage.id && currentSelectedCottage.id.length === 36) ? currentSelectedCottage.id : null,
             notes: combinedNotes
-          }]);
+          },
+          p_identifier: clientId
+        });
+
+        if (error) throw error;
+
+        if (!data || data.status !== 'ok') {
+          saveOk = false;
+          const msg = (data && data.message) || 'Не вдалося оформити бронювання';
+          alert(data && data.status === 'rate_limited'
+            ? 'Занадто багато бронювань з цього пристрою. Спробуйте пізніше.'
+            : msg);
+        } else if (data.id) {
+          // Брендований xlsx-документ бронювання -> у Telegram (fire-and-forget)
+          fetch(SUPABASE_URL + '/functions/v1/booking-excel', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ booking_id: data.id })
+          }).catch(err => console.error('Excel send error:', err));
         }
       } catch (err) {
         console.error('Booking save error:', err);
+        saveOk = false;
+        alert('Помилка збереження бронювання. Спробуйте ще раз.');
       }
-
-      // 2. Send instant Telegram Notification
-      await sendBookingToTelegram({
-        bookingCode: bookingIdCode,
-        name: guestName,
-        phone: guestPhone,
-        cottageName: currentSelectedCottage ? currentSelectedCottage.name : 'Котедж',
-        checkIn: formatUADate(d.checkinDate),
-        checkOut: formatUADate(d.checkoutDate),
-        adults: adultsCount,
-        children: childrenCount,
-        price: finalPriceFormatted,
-        notes: combinedNotes
-      });
 
       if (submitBtn) {
         submitBtn.textContent = 'Продовжити';
         submitBtn.disabled = false;
       }
+
+      if (!saveOk) return;
 
       // 3. Крок 4: Рахунок
       showBookingConfirmation(bookingIdCode, guestName, guestPhone, d.checkinDate, d.checkoutDate, { email: guestEmail });

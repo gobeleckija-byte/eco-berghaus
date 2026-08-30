@@ -204,6 +204,24 @@
     </div>
 </div>
 
+<!-- ===== MODAL: BOOKING QR CODE ===== -->
+<div class="modal-overlay" id="modal-qr">
+    <div class="modal-box" style="max-width:400px; text-align:center;">
+        <div class="modal-header">
+            <h2>QR-код бронювання</h2>
+            <button class="modal-close" onclick="closeModal('modal-qr')">✕</button>
+        </div>
+        <div style="background:#ffffff; padding:18px; border-radius:14px; display:inline-block; margin:6px auto 0;">
+            <canvas id="qr-canvas" width="260" height="260"></canvas>
+        </div>
+        <p id="qr-caption" style="color:#86b3a4; font-size:13px; margin:14px 0 4px;"></p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('modal-qr')">Закрити</button>
+            <button class="btn-primary" id="qr-download-btn">Завантажити PNG</button>
+        </div>
+    </div>
+</div>
+
 <!-- ===== MODAL: COTTAGE ADD / EDIT ===== -->
 <div class="modal-overlay" id="modal-cottage">
     <div class="modal-box">
@@ -253,6 +271,10 @@
             <div class="form-group">
                 <label>Опис</label>
                 <textarea id="c-description" placeholder="Опис котеджу..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Фото (URL — через кому або з нового рядка)</label>
+                <textarea id="c-photos" placeholder="https://example.com/photo1.jpg, https://example.com/photo2.jpg"></textarea>
             </div>
         </div>
         <div class="modal-actions">
@@ -424,6 +446,7 @@
 </div><!-- /dashboard-container -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="admin.js?v=2026-08-30-6"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script src="admin.js?v=2026-08-30-8"></script>
 </body>
 </html>

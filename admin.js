@@ -1,8 +1,7 @@
 // Supabase configuration
 const SUPABASE_URL = 'https://xrebwszduxjnuynjownd.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_TyHq1pSH1Fx1VruiJ_XF2w_GZqEU6RT';
-const TELEGRAM_BOT_TOKEN = '8845339263:AAEyY_6gw1xQyJjqBOQ2kxp8tECYoWC2oRE';
-const TELEGRAM_CHAT_ID = '2026196111';
+const ADMIN_AUTH_URL = SUPABASE_URL + '/functions/v1/admin-auth';
 
 const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -67,20 +66,8 @@ function logout() {
 }
 
 // ============================================================================
-// 2. ДОПОМІЖНІ КРИПТОГРАФІЧНІ ТА UI ФУНКЦІЇ
+// 2. ДОПОМІЖНІ UI ФУНКЦІЇ
 // ============================================================================
-
-function generateCSPRNG_OTP() {
-    const arr = new Uint32Array(1);
-    window.crypto.getRandomValues(arr);
-    return (100000 + (arr[0] % 900000)).toString();
-}
-
-function generateCSPRNG_Salt() {
-    const arr = new Uint8Array(16);
-    window.crypto.getRandomValues(arr);
-    return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
-}
 
 function showError(msg) {
     const errBox = document.getElementById('error-message');
@@ -234,25 +221,25 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerHTML = 'Перевірка...';
 
             try {
-                // Генерація 6-значного CSPRNG OTP та per-OTP солі
-                const otpCode = generateCSPRNG_OTP();
-                const otpSalt = generateCSPRNG_Salt();
-
-                // Отримуємо ідентифікатор клієнта
-                const clientIp = 'client-' + (navigator.userAgent.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16));
-
-                // Виклик захищеної серверної функції в Supabase
-                const { data, error } = await supabaseClient.rpc('admin_initiate_login', {
-                    p_username: username,
-                    p_password: password,
-                    p_ip: clientIp,
-                    p_otp_code: otpCode,
-                    p_salt: otpSalt
+                // Вхід обробляє edge-функція: OTP генерується і надсилається
+                // в Telegram на сервері, клієнт код не бачить
+                const res = await fetch(ADMIN_AUTH_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'initiate_login',
+                        username: username,
+                        password: password
+                    })
                 });
 
-                if (error) {
-                    console.error('Server login error:', error);
-                    showError('Помилка сервера. Перевірте налаштування бази даних.');
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok && data.error) {
+                    showError(data.error);
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = 'Продовжити';
                     return;
@@ -273,29 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                if (data.status === 'otp_created') {
+                if (data.status === 'otp_sent') {
                     currentSessionId = data.session_id;
                     currentLoginUsername = data.username || username;
-
-                    // Відправка одноразового 2FA коду в Telegram
-                    const tgText = `🔐 *ВХІД В АДМІН-ПАНЕЛЬ*\n\n` +
-                        `👤 *Користувач:* ${currentLoginUsername}\n` +
-                        `🔑 *Одноразовий код 2FA*: \`${otpCode}\`\n\n` +
-                        `⏳ Код дійсний 3 хвилини. Залишилось спроб введення: 3.`;
-
-                    try {
-                        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                chat_id: TELEGRAM_CHAT_ID,
-                                text: tgText,
-                                parse_mode: 'Markdown'
-                            })
-                        });
-                    } catch (tgErr) {
-                        console.error('Telegram notification error:', tgErr);
-                    }
 
                     // Перемикання на крок 2FA
                     document.getElementById('step-login').classList.add('hidden');
@@ -346,21 +313,30 @@ document.addEventListener('DOMContentLoaded', () => {
             verifyBtn.innerHTML = 'Перевірка коду...';
 
             try {
-                // Атомарний виклик перевірки OTP в Supabase
-                const { data, error } = await supabaseClient.rpc('admin_verify_otp', {
-                    p_session_id: currentSessionId,
-                    p_otp_code: otpDigits
+                // Верифікація через edge-функцію: повертає серверний токен сесії
+                const res = await fetch(ADMIN_AUTH_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'verify_otp',
+                        session_id: currentSessionId,
+                        otp_code: otpDigits
+                    })
                 });
 
-                if (error) {
-                    console.error('Verify OTP error:', error);
-                    showError('Помилка перевірки коду на сервері.');
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok && data.error) {
+                    showError(data.error);
                     verifyBtn.disabled = false;
                     verifyBtn.innerHTML = 'Підтвердити вхід';
                     return;
                 }
 
-                if (data.status === 'session_expired_or_exhausted') {
+                if (data.status === 'expired') {
                     showError(data.message || 'Сесія OTP недійсна або вичерпана. Спробуйте увійти знову.');
                     clearInterval(otpTimerInterval);
                     verifyBtn.disabled = true;
@@ -380,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                if (data.status === 'success') {
+                if (data.status === 'authenticated') {
                     clearInterval(otpTimerInterval);
 
                     // Зберігаємо сесію з серверним токеном (2 години)
@@ -579,6 +555,7 @@ function renderBookings() {
         const guests = `${b.adults_count || 1} дор. + ${b.children_count || 0} діт.`;
         const actions = `
             <button class="btn-sm btn-edit" onclick="openBookingDetails('${b.id}')">Деталі</button>
+            <button class="btn-sm btn-edit" onclick="openBookingQR('${b.id}')">QR</button>
             ${b.status !== 'confirmed' ? `<button class="btn-sm btn-confirm" onclick="setBookingStatus('${b.id}', 'confirmed')">Підтвердити</button>` : ''}
             ${b.status !== 'cancelled' ? `<button class="btn-sm btn-delete" onclick="setBookingStatus('${b.id}', 'cancelled')">Скасувати</button>` : ''}
             <button class="btn-sm btn-delete" onclick="deleteBooking('${b.id}')">Видалити</button>
@@ -691,8 +668,43 @@ async function setBookingStatus(id, status) {
     }
 }
 
-async function deleteBooking(id) {
-    if (!window.confirm('Видалити це бронювання?')) return;
+// ---------- QR-код бронювання ----------
+
+function openBookingQR(id) {
+    const b = allBookings.find(x => x.id === id);
+    if (!b) return;
+
+    const code = b.id ? b.id.slice(0, 8).toUpperCase() : 'NEW';
+    const guests = `${b.adults_count || 1} дор. + ${b.children_count || 0} діт.`;
+    const qrText = `EcoBerghaus | Бронювання #${code}\n` +
+        `${b.guest_name || 'Гість'} | ${b.guest_phone || '-'}\n` +
+        `Заїзд: ${formatDate(b.check_in)}  Виїзд: ${formatDate(b.check_out)}\n` +
+        `Гостей: ${guests}`;
+
+    const canvas = document.getElementById('qr-canvas');
+    if (!canvas || typeof QRCode === 'undefined') return;
+
+    QRCode.toCanvas(canvas, qrText, { width: 260, margin: 1 }, (err) => {
+        if (err) console.error('QR render error:', err);
+    });
+
+    const caption = document.getElementById('qr-caption');
+    if (caption) caption.textContent = `#${code} • ${b.guest_name || 'Гість'} • ${formatDate(b.check_in)} — ${formatDate(b.check_out)}`;
+
+    const dlBtn = document.getElementById('qr-download-btn');
+    if (dlBtn) {
+        dlBtn.onclick = () => {
+            const a = document.createElement('a');
+            a.href = canvas.toDataURL('image/png');
+            a.download = `qr_booking_${code}.png`;
+            a.click();
+        };
+    }
+
+    openModal('modal-qr');
+}
+
+async function deleteBooking(id) {    if (!window.confirm('Видалити це бронювання?')) return;
 
     try {
         const { data, error } = await supabaseClient.rpc('admin_delete_booking', {
@@ -732,8 +744,16 @@ function renderCottages() {
         return;
     }
 
-    grid.innerHTML = allCottages.map(c => `
+    grid.innerHTML = allCottages.map(c => {
+        const photos = parseCottagePhotos(c.photos);
+        const photoHtml = photos.length > 0
+            ? `<img src="${escapeHtml(photos[0])}" alt="${escapeHtml(c.name)}"
+                   style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;"
+                   onerror="this.style.display='none'">`
+            : '';
+        return `
         <div class="cottage-card">
+            ${photoHtml}
             <div class="cottage-card-top">
                 <div>
                     <div class="cottage-card-title">${escapeHtml(c.name)}</div>
@@ -753,7 +773,14 @@ function renderCottages() {
                 <button class="btn-sm btn-delete" onclick="deleteCottage('${c.id}')">Видалити</button>
             </div>
         </div>
-    `).join('');
+    `;}).join('');
+}
+
+// Фото котеджу зберігаються як список URL через кому (так само читає сайт)
+function parseCottagePhotos(raw) {
+    if (!raw) return [];
+    const list = Array.isArray(raw) ? raw : String(raw).split(/[\n,]+/);
+    return list.map(p => p.trim()).filter(Boolean);
 }
 
 function openCottageModal(id) {
@@ -769,6 +796,7 @@ function openCottageModal(id) {
     document.getElementById('c-price').value = c ? (c.price || '') : '';
     document.getElementById('c-status').value = c ? (c.status || 'active') : 'active';
     document.getElementById('c-description').value = c ? (c.description || '') : '';
+    document.getElementById('c-photos').value = c ? parseCottagePhotos(c.photos).join('\n') : '';
 
     openModal('modal-cottage');
 }
@@ -787,7 +815,8 @@ async function saveCottage() {
         bedrooms: parseInt(document.getElementById('c-bedrooms').value, 10) || 1,
         price: parseFloat(document.getElementById('c-price').value) || 0,
         status: document.getElementById('c-status').value,
-        description: document.getElementById('c-description').value.trim()
+        description: document.getElementById('c-description').value.trim(),
+        photos: parseCottagePhotos(document.getElementById('c-photos').value).join(', ')
     };
 
     if (!payload.name) {
