@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Бронювання | SKÓGUR HOME & RESORT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Top Navbar */
+    .top-navbar {
+      background: #0e382f;
+      color: #ffffff;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 4px 20px rgba(14, 56, 47, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .nav-logo-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #ffffff;
+    }
+    .logo-icon-svg { width: 38px; height: 38px; }
+    .logo-text-box h2 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+    .logo-text-box span {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      opacity: 0.85;
+      text-transform: uppercase;
+      display: block;
+    }
+    .nav-menu-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+    .nav-menu-links a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-menu-links a:hover, .nav-menu-links a.active { color: #ffffff; }
+    .nav-phone-btn {
+      background: rgba(0, 0, 0, 0.35);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .nav-phone-btn:hover { background: rgba(0, 0, 0, 0.55); }
+
+    /* Hide floating call widget */
+    [class*="phone-widget"], [class*="widget-call"], .w-widget-call, .fixed-phone-btn, [id*="phone-widget"], iframe[src*="callback"], .callback-btn, a[href^="tel:"]:not(.nav-phone-btn) {
+      display: none !important;
+      visibility: hidden !important;
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 1180px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /* Booking Card & Blur */
+    .booking-wrapper {
+      position: relative;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 24px 32px 32px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.04);
+      border: 1px solid #eef2f6;
+      width: 100%;
+      transition: filter 0.35s ease, opacity 0.35s ease;
+    }
+
+    .booking-wrapper.is-searching {
+      filter: blur(6px);
+      opacity: 0.65;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .search-loader-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(4px);
+      border-radius: 24px;
+      z-index: 99;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .search-loader-overlay.active { display: flex; }
+
+    .search-spinner {
+      width: 44px;
+      height: 44px;
+      border: 3.5px solid #e2e8f0;
+      border-top-color: #0e382f;
+      border-radius: 50%;
+      animation: spinSearch 0.8s linear infinite;
+    }
+
+    .search-loader-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0e382f;
+    }
+
+    @keyframes spinSearch {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Promo Row */
+    .promo-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .promo-input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 0 16px;
+      height: 42px;
+      width: 190px;
+    }
+    .promo-input-box input {
+      border: none !important;
+      outline: none !important;
+      background: transparent !important;
+      font-size: 14px;
+      color: #334155;
+      width: 100%;
+    }
+    .promo-percent-icon { font-size: 15px; color: #64748b; margin-left: 6px; }
+    .icon-btn-square {
+      width: 42px;
+      height: 42px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Main Filter Row */
+    .main-filter-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      width: 100%;
+    }
+    .filter-card {
+      background: #f8fafc;
+      border-radius: 16px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
+    }
+    .filter-card:hover {
+      border-color: #cbd5e1;
+      background: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    }
+    .date-card {
+      flex: 2.2;
+      min-width: 340px;
+      padding: 0 24px;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .date-left-group { display: flex; align-items: center; gap: 14px; }
+    .date-text { color: #1e293b; font-size: 15px; font-weight: 500; white-space: nowrap; }
+    .guests-card {
+      flex: 1.4;
+      min-width: 240px;
+      padding: 0 20px;
+      justify-content: space-around;
+      cursor: pointer;
+      position: relative;
+    }
+    .guest-counter-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #1e293b;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .search-action-btn {
+      background: #18181b;
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      height: 60px;
+      padding: 0 38px;
+      font-size: 16px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(24, 24, 27, 0.2);
+      transition: all 0.2s;
+    }
+    .search-action-btn:hover { background: #09090b; transform: translateY(-1px); }
+
+    /* Stepper */
+    .stepper-container {
+      position: relative;
+      padding: 10px 40px 0 40px;
+      margin-top: 8px;
+    }
+    .stepper-line-bg {
+      position: absolute;
+      top: 18px;
+      left: 65px;
+      right: 65px;
+      height: 2px;
+      background: #d4d4d8;
+      z-index: 1;
+    }
+    .stepper-line-active {
+      position: absolute;
+      top: 18px;
+      left: 65px;
+      width: 0%;
+      height: 2px;
+      background: #18181b;
+      z-index: 2;
+      transition: width 0.3s ease;
+    }
+    .stepper-nodes {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      z-index: 3;
+    }
+    .step-node-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .node-circle {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      margin-top: 4px;
+      transition: all 0.2s;
+    }
+    .node-circle.active {
+      width: 18px;
+      height: 18px;
+      background: #18181b;
+      border: 3px solid #ffffff;
+      outline: 2px solid #18181b;
+      margin-top: 0px;
+    }
+    .step-label-text { font-size: 13px; color: #71717a; white-space: nowrap; }
+    .step-label-text.active { color: #18181b; font-weight: 600; }
+
+    /* Popover */
+    .guests-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 70px;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      border: 1px solid #e2e8f0;
+      z-index: 100;
+    }
+    .guests-dropdown-menu.show { display: block; }
+    .dropdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .dropdown-row:last-child { border-bottom: none; }
+    .dropdown-counter-controls { display: flex; align-items: center; gap: 12px; }
+    .counter-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Results */
+    #cottages-results-wrapper {
+      width: 100%;
+      margin: 28px auto 60px;
+    }
+    .cottages-list-container { display: flex; flex-direction: column; gap: 28px; }
+    .cottage-card-row {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      min-height: 380px;
+      transition: all 0.25s;
+    }
+    .cottage-card-row:hover { box-shadow: 0 10px 32px rgba(0, 0, 0, 0.08); }
+    .card-media-col {
+      width: 44%;
+      min-width: 330px;
+      position: relative;
+      background: #0f172a;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .card-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 10;
+      background: rgba(30, 60, 45, 0.88);
+      backdrop-filter: blur(6px);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 8px;
+    }
+    .carousel-wrapper { position: relative; width: 100%; height: 100%; min-height: 320px; }
+    .carousel-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.3s; }
+    .carousel-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 8;
+      background: rgba(0, 0, 0, 0.4);
+      color: #ffffff;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .carousel-wrapper:hover .carousel-nav-btn { opacity: 1; }
+    .carousel-nav-btn.prev { left: 12px; }
+    .carousel-nav-btn.next { right: 12px; }
+    .carousel-indicators {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+    .carousel-indicator-dash {
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.45);
+      width: 20px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .carousel-indicator-dash.active { background: #ffffff; width: 32px; }
+    .card-details-col {
+      width: 56%;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .card-title { font-size: 24px; font-weight: 700; color: #1e293b; line-height: 1.25; margin: 0; }
+    .details-modal-btn {
+      color: #475569;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: none;
+      background: none;
+    }
+    .card-meta-capacity { display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 14px; }
+    .card-specs { font-size: 14px; color: #1e293b; line-height: 1.5; margin: 6px 0 10px 0; }
+    .card-specs strong { font-weight: 700; }
+    .card-description-text {
+      font-size: 13.5px;
+      color: #475569;
+      line-height: 1.6;
+      max-height: 100px;
+      overflow: hidden;
+      transition: max-height 0.35s ease-in-out;
+    }
+    .card-description-text.expanded { max-height: 1000px; }
+    .toggle-desc-btn {
+      color: #334155;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: none;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 12px;
+      align-self: flex-end;
+    }
+    .card-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .tariff-trigger {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .tariff-drawer-box {
+      display: none;
+      background: #f0fdf4;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-top: 14px;
+      border: 1px solid #bbf7d0;
+      font-size: 13.5px;
+      color: #166534;
+      line-height: 1.5;
+    }
+    .tariff-drawer-box.active { display: block; }
+    .price-action-group { display: flex; align-items: center; gap: 14px; }
+    .price-amount { font-size: 26px; font-weight: 700; color: #1e293b; letter-spacing: -0.5px; }
+    .price-info-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid #94a3b8;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .btn-choose-cottage {
+      background: #18181b;
+      color: #ffffff;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-choose-cottage:hover { background: #09433f; transform: translateY(-1px); }
+
+    /* Modals */
+    .cottage-modal-overlay, .booking-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .cottage-modal-overlay.active, .booking-modal-overlay.active { display: flex; }
+    .modal-card-window, .booking-modal-window {
+      background: #ffffff;
+      border-radius: 20px;
+      max-width: 980px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px 28px;
+      position: relative;
+    }
+    .booking-modal-window { max-width: 580px; }
+    .modal-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; }
+    .modal-card-title { font-size: 22px; font-weight: 600; }
+    .modal-card-close { background: none; border: none; font-size: 26px; cursor: pointer; color: #64748b; }
+    .modal-card-body { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .modal-main-img-wrap { position: relative; width: 100%; height: 340px; border-radius: 14px; overflow: hidden; background: #0f172a; }
+    .modal-main-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .modal-nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-nav-arrow.prev { left: 10px; }
+    .modal-nav-arrow.next { right: 10px; }
+    .modal-gallery-right { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; height: 340px; align-content: space-between; }
+    .modal-thumb-img { width: 100%; height: 105px; object-fit: cover; border-radius: 10px; cursor: pointer; border: 2px solid transparent; }
+    .modal-thumb-img.active { border-color: #09433f; }
+    .modal-card-footer { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; border-top: 1px solid #e2e8f0; padding-top: 18px; }
+    .modal-cottage-num { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+    .modal-cottage-desc { font-size: 13.5px; color: #475569; line-height: 1.6; }
+
+    /* Form */
+    .booking-form-group { margin-bottom: 16px; }
+    .booking-form-group label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+    .booking-form-group input, .booking-form-group textarea {
+      width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 14.5px; outline: none; font-family: inherit;
+    }
+    .booking-summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 14px; color: #475569; margin-bottom: 8px; }
+    .summary-row:last-child { margin-bottom: 0; font-weight: 700; color: #09433f; font-size: 16px; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+    .invoice-card-success {
+      background: #ffffff; border-radius: 20px; border: 1px solid #d1fae5; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.08); padding: 36px; text-align: center; max-width: 640px; margin: 30px auto;
+    }
+
+    @media (max-width: 768px) {
+      .top-navbar { flex-direction: column; gap: 14px; }
+      .nav-menu-links { flex-wrap: wrap; gap: 14px; }
+      .main-filter-row { flex-direction: column; }
+      .filter-card, .search-action-btn { width: 100%; }
+      .cottage-card-row { flex-direction: column; }
+      .card-media-col { width: 100%; height: 260px; min-width: 100%; }
+      .card-details-col { width: 100%; padding: 20px; }
+      .modal-card-body { grid-template-columns: 1fr; }
+      .modal-gallery-right { height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="top-navbar">
+    <a href="#" class="nav-logo-group">
+      <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none">
+        <path d="M20 4L8 16L14 22L20 16L26 22L32 16L20 4Z" fill="#ffffff"/>
+        <path d="M8 24L20 36L32 24L26 18L20 24L14 18L8 24Z" fill="#ffffff" opacity="0.8"/>
+      </svg>
+      <div class="logo-text-box">
+        <h2>SKÓGUR</h2>
+        <span>HOME &amp; RESORT</span>
+      </div>
+    </a>
+    <ul class="nav-menu-links">
+      <li><a href="#">Про комплекс</a></li>
+      <li><a href="#">Інфраструктура</a></li>
+      <li><a href="#" class="active">Бронювання</a></li>
+      <li><a href="#">Інвестиції</a></li>
+      <li><a href="#">Контакти</a></li>
+    </ul>
+    <a href="tel:+380673573339" class="nav-phone-btn">+380 (67) 357 33 39</a>
+  </header>
+
+  <!-- Main Booking Area -->
+  <main class="main-container">
+    <input type="text" id="checkin" value="" style="position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px;">
+    <input type="text" id="checkout" value="" style="position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px;">
+
+    <div class="booking-wrapper" id="main-booking-card">
+      <!-- Search Loader Overlay -->
+      <div class="search-loader-overlay" id="search-loading-overlay">
+        <div class="search-spinner"></div>
+        <div class="search-loader-text">Пошук підходящих номерів...</div>
+      </div>
+
+      <!-- Top Promo Row -->
+      <div class="promo-row">
+        <div class="promo-input-box">
+          <input type="text" id="promo-code" placeholder="Промокод">
+          <span class="promo-percent-icon">%</span>
+        </div>
+        <div class="icon-btn-square" id="apply-promo" title="Застосувати промокод">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Main Filter Row -->
+      <div class="main-filter-row">
+        <div class="filter-card date-card" id="date-picker-trigger">
+          <div class="date-left-group">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span class="date-text" id="checkin-display">Серпень 28, 2026</span>
+          </div>
+          <span class="date-text" id="checkout-display">Серпень 30, 2026</span>
+        </div>
+
+        <div class="filter-card guests-card" id="guests-picker-trigger">
+          <div class="guest-counter-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"></path>
+              <path d="M2 20h20"></path>
+              <circle cx="14" cy="12" r="1" fill="#475569"></circle>
+            </svg>
+            <span id="rooms-display">1</span>
+          </div>
+          <div class="guest-counter-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span id="adults-display">1</span>
+          </div>
+          <div class="guest-counter-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"></circle>
+              <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+              <path d="M18 9l2-2"></path>
+              <path d="M6 9l-2-2"></path>
+            </svg>
+            <span id="children-display">0</span>
+            <span id="guests-display" style="display:none;">1</span>
+          </div>
+
+          <div class="guests-dropdown-menu" id="guests-dropdown">
+            <div class="dropdown-row">
+              <span>Номери</span>
+              <div class="dropdown-counter-controls">
+                <button type="button" class="counter-btn" id="dec-rooms">-</button>
+                <span id="pop-rooms" style="font-weight:600; min-width:16px; text-align:center;">1</span>
+                <button type="button" class="counter-btn" id="inc-rooms">+</button>
+              </div>
+            </div>
+            <div class="dropdown-row">
+              <span>Дорослі</span>
+              <div class="dropdown-counter-controls">
+                <button type="button" class="counter-btn" id="dec-adults">-</button>
+                <span id="pop-adults" style="font-weight:600; min-width:16px; text-align:center;">1</span>
+                <button type="button" class="counter-btn" id="inc-adults">+</button>
+              </div>
+            </div>
+            <div class="dropdown-row">
+              <span>Діти</span>
+              <div class="dropdown-counter-controls">
+                <button type="button" class="counter-btn" id="dec-children">-</button>
+                <span id="pop-children" style="font-weight:600; min-width:16px; text-align:center;">0</span>
+                <button type="button" class="counter-btn" id="inc-children">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="search-action-btn" id="search-cottages">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Пошук</span>
+        </button>
+      </div>
+
+      <!-- Stepper -->
+      <div class="stepper-container">
+        <div class="stepper-line-bg"></div>
+        <div class="stepper-line-active" id="stepper-active-bar"></div>
+        <div class="stepper-nodes">
+          <div class="step-node-item" id="step-node-1">
+            <div class="node-circle active"></div>
+            <span class="step-label-text active">Вибір дати</span>
+          </div>
+          <div class="step-node-item" id="step-node-2">
+            <div class="node-circle"></div>
+            <span class="step-label-text">Вибір номеру</span>
+          </div>
+          <div class="step-node-item" id="step-node-3">
+            <div class="node-circle"></div>
+            <span class="step-label-text">Ваші дані</span>
+          </div>
+          <div class="step-node-item" id="step-node-4">
+            <div class="node-circle"></div>
+            <span class="step-label-text">Рахунок</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cottages Results -->
+    <div id="cottages-results-wrapper">
+      <div id="cottages-results"></div>
+    </div>
+
+    <!-- Confirmation View -->
+    <div id="booking-confirmation-container" style="display:none; width:100%;"></div>
+
+    <!-- Details Modal -->
+    <div class="cottage-modal-overlay" id="cottage-detail-modal">
+      <div class="modal-card-window">
+        <div class="modal-card-header">
+          <h3 class="modal-card-title" id="modal-c-title">Котедж</h3>
+          <button type="button" class="modal-card-close" id="modal-detail-close">&times;</button>
+        </div>
+        <div class="modal-card-body">
+          <div class="modal-main-img-wrap">
+            <img id="modal-main-img" src="" alt="Cottage photo">
+            <button type="button" class="modal-nav-arrow prev" id="modal-prev-photo">&#8249;</button>
+            <button type="button" class="modal-nav-arrow next" id="modal-next-photo">&#8250;</button>
+          </div>
+          <div class="modal-gallery-right" id="modal-thumbs-grid"></div>
+        </div>
+        <div class="modal-card-footer">
+          <div>
+            <div class="modal-cottage-num" id="modal-c-specs"></div>
+            <div class="modal-cottage-desc" id="modal-c-desc"></div>
+          </div>
+          <button type="button" class="btn-choose-cottage" id="modal-book-btn" style="min-width:140px; margin-top:10px;">Обрати</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Booking Form Modal -->
+    <div class="booking-modal-overlay" id="booking-data-modal">
+      <div class="booking-modal-window">
+        <div class="modal-card-header">
+          <h3 class="modal-card-title">Ваші дані для бронювання</h3>
+          <button type="button" class="modal-card-close" id="booking-modal-close">&times;</button>
+        </div>
+        <div class="booking-summary-box">
+          <div class="summary-row"><span>Обраний котедж:</span> <strong id="sum-cottage-name">-</strong></div>
+          <div class="summary-row"><span>Дати проживання:</span> <span id="sum-dates">-</span></div>
+          <div class="summary-row"><span>Гості:</span> <span id="sum-guests">-</span></div>
+          <div class="summary-row"><span>До сплати:</span> <span id="sum-price">-</span></div>
+        </div>
+        <form id="booking-guest-form">
+          <div class="booking-form-group">
+            <label>Ім'я та прізвище *</label>
+            <input type="text" id="guest-name-input" required value="ян" placeholder="Введіть ваше ім'я">
+          </div>
+          <div class="booking-form-group">
+            <label>Номер телефону *</label>
+            <input type="tel" id="guest-phone-input" required value="+380955802793" placeholder="+380 (XX) XXX XX XX">
+          </div>
+          <div class="booking-form-group">
+            <label>Побажання чи коментар</label>
+            <textarea id="guest-notes-input" rows="2" placeholder="Особливі побажання до проживання..."></textarea>
+          </div>
+          <button type="submit" class="btn-choose-cottage" style="width:100%; height:52px; font-size:16px; border-radius:14px; margin-top:10px;" id="submit-booking-btn">Підтвердити бронювання</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/uk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = 'https://xrebwszduxjnuynjownd.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_TyHq1pSH1Fx1VruiJ_XF2w_GZqEU6RT';
+    const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function') 
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
+      : null;
+
+    const UA_MONTHS = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 
+                       'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
+
+    function formatUADate(dateObj) {
+      if (!dateObj) return '';
+      const day = dateObj.getDate();
+      const month = UA_MONTHS[dateObj.getMonth()];
+      const year = dateObj.getFullYear();
+      return `${month} ${day}, ${year}`;
+    }
+
+    function formatDateISO(dateObj) {
+      if (!dateObj) return '';
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getRemainingBadgeText(count) {
+      const c = parseInt(count) || 1;
+      if (c === 1) return '1 номер залишився';
+      if (c >= 2 && c <= 4) return `${c} номери залишилося`;
+      return `${c} номерів залишилось`;
+    }
+
+    const DEFAULT_COTTAGES = [
+      {
+        id: 'c1',
+        name: 'Котедж з однією спальнею та видом на ліс',
+        guest_count: 2,
+        cottage_numbers: '102, 103, 106',
+        floors: 1,
+        bedrooms: 1,
+        price: 22069.18,
+        tariff: 'Rack Rate',
+        status: 'active',
+        remaining: 1,
+        photos: [
+          'https://ecoberghaus.com.ua/wp-content/uploads/2023/11/img-cottage-05.jpg',
+          'https://ecoberghaus.com.ua/wp-content/uploads/2023/10/gallery-01.jpg',
+          'https://ecoberghaus.com.ua/wp-content/uploads/2023/10/gallery-02.jpg',
+          'https://ecoberghaus.com.ua/wp-content/uploads/2023/10/gallery-03.jpg'
+        ],
+        description_bullets: [
+          'Кухня-студія зі зручним розкладним диваном',
+          'Спальня з королівським двоспальним ліжком',
+          'Санвузол',
+          'Простора тераса з власною зоною барбекю та меблями для відпочинку'
+        ],
+        description_note: 'Котеджі повністю оснащені усім необхідним для комфортного проживання, вам варто взяти лише особисті речі.<br>* Додаткове місце в котеджі оплачується окремо.<br>На території Skogur вже працює банно-оздоровчий комплекс Rosa, панорамний ресторан The Gust, піцерія, дитячий кемп, екокрамничка та багато інших локацій.'
+      },
+      {
+        id: 'c2',
+        name: 'Котеджі з трьома спальнями',
+        guest_count: 6,
+        cottage_numbers: '202, 203, 204, 209, 211, 212, 215, 216, 217, 219, 220, 230, 231',
+        floors: 2,
+        bedrooms: 3,
+        price: 38450.00,
+        tariff: 'Rack Rate',
+        status: 'active',
+        remaining: 2,
+        photos: [
+          'https://ecoberghaus.com.ua/wp-content/uploads/2023/11/img-cottage-04.jpg',
+          'https://ecoberghaus.com.ua/wp-content/uploads/2023/10/gallery-04.jpg',
+          'https://ecoberghaus.com.ua/wp-content/uploads/2023/10/gallery-05.jpg'
+        ],
+        description_bullets: [
+          'Панорамна кухня-студія з великим розкладним диваном',
+          'Дві королівські спальні на другому поверсі',
+          'Спальня з двоспальним ліжком на першому поверсі',
+          'Три санвузли',
+          'Простора тераса з власною зоною барбекю та меблями для відпочинку'
+        ],
+        description_note: 'Котеджі з 3 спальнями чудово пасують для відпочинку 6 осіб. У будинках є все необхідне для розкішного та спокійного релаксу в оточенні смерекового лісу.'
+      },
+      {
+        id: 'c3',
+        name: 'Котедж з двома спальнями та панорамним видом',
+        guest_count: 4,
+        cottage_numbers: '108, 110, 112',
+        floors: 1,
+        bedrooms: 2,
+        price: 29800.00,
+        tariff: 'Rack Rate',
+        status: 'active',
+        remaining: 3,
+        photos: [
+          'https://ecoberghaus.com.ua/wp-content/uploads/2023/11/img-cottage-01.jpg',
+          'https://ecoberghaus.com.ua/wp-content/uploads/2023/10/gallery-06.jpg'
+        ],
+        description_bullets: [
+          'Затишна вітальня з каміном',
+          'Дві окремі спальні з двоспальними ліжками',
+          'Два санвузли',
+          'Видова тераса з шезлонгами та мангалом'
+        ],
+        description_note: 'Ідеальний варіант для сімейного відпочинку до 4 гостей з панорамними вікнами на Карпатські вершини.'
+      }
+    ];
+
+    let checkinCalendar, checkoutCalendar;
+    let roomsCount = 1;
+    let adultsCount = 1;
+    let childrenCount = 0;
+    let appliedPromo = null;
+    let currentSelectedCottage = null;
+    let activeCottagesList = [];
+
+    window.setBookingStep = function(stepNumber) {
+      const percentages = { 1: '0%', 2: '33.33%', 3: '66.66%', 4: '100%' };
+      const activeBar = document.getElementById('stepper-active-bar');
+      if (activeBar) activeBar.style.width = percentages[stepNumber] || '0%';
+
+      for (let i = 1; i <= 4; i++) {
+        const node = document.getElementById(`step-node-${i}`);
+        if (!node) continue;
+        const circle = node.querySelector('.node-circle');
+        const text = node.querySelector('.step-label-text');
+        if (i <= stepNumber) {
+          if (circle) circle.classList.add('active');
+          if (text) text.classList.add('active');
+        } else {
+          if (circle) circle.classList.remove('active');
+          if (text) text.classList.remove('active');
+        }
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const defaultCheckIn = new Date();
+      const defaultCheckOut = new Date();
+      defaultCheckOut.setDate(defaultCheckOut.getDate() + 2);
+
+      const checkinDisplay = document.getElementById('checkin-display');
+      const checkoutDisplay = document.getElementById('checkout-display');
+      if (checkinDisplay) checkinDisplay.textContent = formatUADate(defaultCheckIn);
+      if (checkoutDisplay) checkoutDisplay.textContent = formatUADate(defaultCheckOut);
+
+      checkinCalendar = flatpickr("#checkin", {
+        dateFormat: "Y-m-d",
+        defaultDate: defaultCheckIn,
+        minDate: "today",
+        locale: "uk",
+        onChange: function(selectedDates) {
+          if (selectedDates.length) {
+            if (checkinDisplay) checkinDisplay.textContent = formatUADate(selectedDates[0]);
+            const nextDay = new Date(selectedDates[0]);
+            nextDay.setDate(nextDay.getDate() + 1);
+            if (checkoutCalendar) {
+              checkoutCalendar.set("minDate", nextDay);
+              if (checkoutCalendar.selectedDates[0] <= selectedDates[0]) {
+                checkoutCalendar.setDate(nextDay, true);
+              }
+            }
+          }
+        }
+      });
+
+      checkoutCalendar = flatpickr("#checkout", {
+        dateFormat: "Y-m-d",
+        defaultDate: defaultCheckOut,
+        minDate: "today",
+        locale: "uk",
+        onChange: function(selectedDates) {
+          if (selectedDates.length && checkoutDisplay) {
+            checkoutDisplay.textContent = formatUADate(selectedDates[0]);
+          }
+        }
+      });
+
+      const dateCard = document.getElementById('date-picker-trigger');
+      if (dateCard) {
+        dateCard.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (checkinCalendar) checkinCalendar.open();
+        });
+      }
+
+      const guestsTrigger = document.getElementById('guests-picker-trigger');
+      const guestsDropdown = document.getElementById('guests-dropdown');
+      
+      if (guestsTrigger && guestsDropdown) {
+        guestsTrigger.addEventListener('click', (e) => {
+          if (e.target.closest('#guests-dropdown')) return;
+          e.stopPropagation();
+          guestsDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!guestsTrigger.contains(e.target)) guestsDropdown.classList.remove('show');
+        });
+
+        const updateCounts = () => {
+          document.getElementById('rooms-display').textContent = roomsCount;
+          document.getElementById('pop-rooms').textContent = roomsCount;
+          document.getElementById('adults-display').textContent = adultsCount;
+          document.getElementById('pop-adults').textContent = adultsCount;
+          document.getElementById('children-display').textContent = childrenCount;
+          document.getElementById('pop-children').textContent = childrenCount;
+        };
+
+        document.getElementById('inc-rooms').addEventListener('click', () => { roomsCount++; updateCounts(); });
+        document.getElementById('dec-rooms').addEventListener('click', () => { if (roomsCount > 1) roomsCount--; updateCounts(); });
+        document.getElementById('inc-adults').addEventListener('click', () => { adultsCount++; updateCounts(); });
+        document.getElementById('dec-adults').addEventListener('click', () => { if (adultsCount > 1) adultsCount--; updateCounts(); });
+        document.getElementById('inc-children').addEventListener('click', () => { childrenCount++; updateCounts(); });
+        document.getElementById('dec-children').addEventListener('click', () => { if (childrenCount > 0) childrenCount--; updateCounts(); });
+      }
+
+      const applyPromoBtn = document.getElementById('apply-promo');
+      if (applyPromoBtn) {
+        applyPromoBtn.addEventListener('click', async function() {
+          const promoInput = document.getElementById('promo-code');
+          const promoCode = promoInput ? promoInput.value.trim().toUpperCase() : '';
+          if (!promoCode) {
+            alert('Будь ласка, введіть промокод');
+            return;
+          }
+          appliedPromo = { discount: 10, code: promoCode };
+          alert(`Промокод "${promoCode}" застосовано! Знижка: 10%`);
+          performSearch(false);
+        });
+      }
+
+      const searchBtn = document.getElementById('search-cottages');
+      if (searchBtn) {
+        searchBtn.addEventListener('click', () => performSearch(true));
+      }
+
+      performSearch(false);
+    });
+
+    async function performSearch(withAnimation = true) {
+      const bookingCard = document.getElementById('main-booking-card');
+      const loadingOverlay = document.getElementById('search-loading-overlay');
+      const resultsWrapper = document.getElementById('cottages-results-wrapper');
+      const confirmContainer = document.getElementById('booking-confirmation-container');
+
+      if (confirmContainer) confirmContainer.style.display = 'none';
+      if (resultsWrapper) resultsWrapper.style.display = 'block';
+
+      if (withAnimation) {
+        if (bookingCard) bookingCard.classList.add('is-searching');
+        if (loadingOverlay) loadingOverlay.classList.add('active');
+      }
+
+      setBookingStep(2);
+
+      const totalGuests = adultsCount + childrenCount;
+      const checkinDate = checkinCalendar && checkinCalendar.selectedDates[0] ? checkinCalendar.selectedDates[0] : new Date();
+      const checkoutDate = checkoutCalendar && checkoutCalendar.selectedDates[0] ? checkoutCalendar.selectedDates[0] : new Date(Date.now() + 2 * 86400000);
+      const checkinISO = formatDateISO(checkinDate);
+      const checkoutISO = formatDateISO(checkoutDate);
+
+      let cottages = [];
+
+      try {
+        if (supabaseClient) {
+          const { data: dbCottages, error: cError } = await supabaseClient
+            .from('cottages')
+            .select('*')
+            .eq('status', 'active');
+
+          if (!cError && dbCottages && dbCottages.length > 0) {
+            const { data: dbBookings } = await supabaseClient
+              .from('bookings')
+              .select('cottage_id')
+              .neq('status', 'cancelled')
+              .lt('check_in', checkoutISO)
+              .gt('check_out', checkinISO);
+
+            const bookedCottageIds = new Set((dbBookings || []).map(b => b.cottage_id));
+
+            cottages = dbCottages
+              .filter(c => c.guest_count >= totalGuests && !bookedCottageIds.has(c.id))
+              .map(c => {
+                const rawPhotos = c.photos ? (Array.isArray(c.photos) ? c.photos : c.photos.split(',').map(p => p.trim())) : [];
+                const photosList = rawPhotos.length > 0 ? rawPhotos : ['https://ecoberghaus.com.ua/wp-content/uploads/2023/11/img-cottage-05.jpg'];
+                const descLines = (c.description || '').split('\n').filter(l => l.trim().length > 0);
+                const bullets = descLines.filter(l => l.startsWith('•') || l.startsWith('-')).map(l => l.replace(/^[•\-]\s*/, ''));
+                const restNote = descLines.filter(l => !l.startsWith('•') && !l.startsWith('-')).join('<br>');
+
+                return {
+                  id: c.id,
+                  name: c.name,
+                  guest_count: c.guest_count,
+                  cottage_numbers: c.cottage_numbers || '101, 102',
+                  floors: c.floors || 1,
+                  bedrooms: c.bedrooms || 1,
+                  price: parseFloat(c.price) || 20000,
+                  tariff: c.tariff || 'Rack Rate',
+                  status: c.status,
+                  remaining: 2,
+                  photos: photosList,
+                  description_bullets: bullets.length > 0 ? bullets : ['Панорамний вид на гори', 'Кухня-студія', 'Санвузол', 'Тераса з BBQ'],
+                  description_note: restNote || c.description || 'Комфортний котедж з усіма зручностями серед мальовничої природи Карпат.'
+                };
+              });
+          }
+        }
+      } catch (err) {
+        console.log('Supabase fallback:', err);
+      }
+
+      if (cottages.length === 0) {
+        cottages = DEFAULT_COTTAGES.filter(c => c.guest_count >= totalGuests);
+        if (cottages.length === 0) cottages = DEFAULT_COTTAGES;
+      }
+
+      activeCottagesList = cottages;
+
+      const finishDelay = withAnimation ? 600 : 0;
+      setTimeout(() => {
+        if (bookingCard) bookingCard.classList.remove('is-searching');
+        if (loadingOverlay) loadingOverlay.classList.remove('active');
+        renderCottagesCards(cottages);
+        if (withAnimation && resultsWrapper) {
+          resultsWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, finishDelay);
+    }
+
+    function renderCottagesCards(cottages) {
+      const container = document.getElementById('cottages-results');
+      if (!container) return;
+
+      if (cottages.length === 0) {
+        container.innerHTML = `
+          <div style="background:#ffffff; border-radius:20px; padding:48px 24px; text-align:center; border:1px solid #e2e8f0; margin-top:20px;">
+            <h3 style="font-size:20px; color:#1e293b; margin-bottom:8px;">Не знайдено вільних котеджів на обрані дати</h3>
+            <p style="color:#64748b; font-size:14.5px;">Спробуйте обрати інші дати або змінити кількість гостей.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      const listDiv = document.createElement('div');
+      listDiv.className = 'cottages-list-container';
+
+      cottages.forEach((c, idx) => {
+        const card = document.createElement('div');
+        card.className = 'cottage-card-row';
+        card.id = `cottage-card-${c.id}`;
+
+        const photos = c.photos && c.photos.length > 0 ? c.photos : ['https://ecoberghaus.com.ua/wp-content/uploads/2023/11/img-cottage-05.jpg'];
+        const basePrice = parseFloat(c.price) || 22000;
+        const discount = appliedPromo && appliedPromo.discount ? appliedPromo.discount : 0;
+        const finalPrice = discount > 0 ? (basePrice * (1 - discount / 100)) : basePrice;
+        const formattedPrice = finalPrice.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const badgeText = getRemainingBadgeText(c.remaining || (idx + 1));
+        const bulletsHTML = (c.description_bullets || []).map(b => `<div style="margin-bottom:4px;">• ${b}</div>`).join('');
+        const dashesHTML = photos.map((_, pIdx) => `<div class="carousel-indicator-dash ${pIdx === 0 ? 'active' : ''}" onclick="setCardPhoto('${c.id}', ${pIdx})"></div>`).join('');
+
+        card.innerHTML = `
+          <div class="card-media-col">
+            <div class="card-badge">${badgeText}</div>
+            <div class="carousel-wrapper" id="carousel-${c.id}">
+              <img class="carousel-img" id="carousel-img-${c.id}" src="${photos[0]}" alt="${c.name}">
+              ${photos.length > 1 ? `
+                <button type="button" class="carousel-nav-btn prev" onclick="navigateCardPhoto('${c.id}', -1)">&#8249;</button>
+                <button type="button" class="carousel-nav-btn next" onclick="navigateCardPhoto('${c.id}', 1)">&#8250;</button>
+                <div class="carousel-indicators" id="indicators-${c.id}">${dashesHTML}</div>
+              ` : ''}
+            </div>
+          </div>
+          <div class="card-details-col">
+            <div>
+              <div class="card-header-top">
+                <h3 class="card-title">${c.name}</h3>
+              </div>
+              <div class="card-header-top" style="margin-top: 4px;">
+                <div class="card-meta-capacity">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  <span>до ${c.guest_count} гостей</span>
+                </div>
+                <button type="button" class="details-modal-btn" onclick="openDetailsModal('${c.id}')">
+                  Детальніше
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <div class="card-specs">
+                <strong>Панорамні котеджі №:</strong> ${c.cottage_numbers}<br>
+                <strong>Поверхів:</strong> ${c.floors} | <strong>Спалень:</strong> ${c.bedrooms}
+              </div>
+              <div class="card-description-text" id="desc-box-${c.id}">
+                <div style="margin-bottom:6px;">Котеджі з ${c.bedrooms} спальнями чудово пасують для відпочинку ${c.guest_count} осіб. У будинках є:</div>
+                ${bulletsHTML}
+                <div style="margin-top:6px; font-size:13px; color:#64748b;">${c.description_note}</div>
+              </div>
+            </div>
+            <div>
+              <button type="button" class="toggle-desc-btn" id="toggle-btn-${c.id}" onclick="toggleDescription('${c.id}')">
+                <span>Розгорнути</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div class="tariff-drawer-box" id="tariff-drawer-${c.id}">
+                <strong>Тариф "${c.tariff || 'Rack Rate'}":</strong>
+                <ul style="margin: 6px 0 0 18px; padding: 0;">
+                  <li>Безкоштовне скасування бронювання за 7 днів до заїзду</li>
+                  <li>Сніданок «Шведська лінія» включено у вартість</li>
+                  <li>Безлімітний доступ до басейну та SPA-комплексу Rosa</li>
+                </ul>
+              </div>
+              <div class="card-footer-row">
+                <button type="button" class="tariff-trigger" onclick="toggleTariffDrawer('${c.id}')">
+                  <span>Тариф: ${c.tariff || 'Rack Rate'}</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="price-action-group">
+                  <div class="price-amount">${formattedPrice} ₴</div>
+                  <div class="price-info-btn" title="Ціна за обраний період проживання. Включає всі податки та збори.">ⓘ</div>
+                  <button type="button" class="btn-choose-cottage" onclick="startBooking('${c.id}')">Обрати</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        listDiv.appendChild(card);
+      });
+
+      container.appendChild(listDiv);
+    }
+
+    const photoIndices = {};
+    function navigateCardPhoto(cottageId, delta) {
+      const cottage = activeCottagesList.find(c => c.id === cottageId);
+      if (!cottage || !cottage.photos || cottage.photos.length <= 1) return;
+      let newIdx = (photoIndices[cottageId] || 0) + delta;
+      if (newIdx < 0) newIdx = cottage.photos.length - 1;
+      if (newIdx >= cottage.photos.length) newIdx = 0;
+      setCardPhoto(cottageId, newIdx);
+    }
+
+    function setCardPhoto(cottageId, photoIndex) {
+      const cottage = activeCottagesList.find(c => c.id === cottageId);
+      if (!cottage || !cottage.photos) return;
+      photoIndices[cottageId] = photoIndex;
+      const imgEl = document.getElementById(`carousel-img-${cottageId}`);
+      if (imgEl) {
+        imgEl.style.opacity = '0.4';
+        imgEl.src = cottage.photos[photoIndex];
+        setTimeout(() => { imgEl.style.opacity = '1'; }, 150);
+      }
+      const indicatorsContainer = document.getElementById(`indicators-${cottageId}`);
+      if (indicatorsContainer) {
+        indicatorsContainer.querySelectorAll('.carousel-indicator-dash').forEach((d, idx) => {
+          if (idx === photoIndex) d.classList.add('active');
+          else d.classList.remove('active');
+        });
+      }
+    }
+
+    function toggleDescription(cottageId) {
+      const descBox = document.getElementById(`desc-box-${cottageId}`);
+      const toggleBtn = document.getElementById(`toggle-btn-${cottageId}`);
+      if (!descBox || !toggleBtn) return;
+      const isExpanded = descBox.classList.toggle('expanded');
+      const span = toggleBtn.querySelector('span');
+      const svg = toggleBtn.querySelector('svg');
+      if (span) span.textContent = isExpanded ? 'Згорнути' : 'Розгорнути';
+      if (svg) svg.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+
+    function toggleTariffDrawer(cottageId) {
+      const drawer = document.getElementById(`tariff-drawer-${cottageId}`);
+      if (drawer) drawer.classList.toggle('active');
+    }
+
+    let modalCurrentPhotoIdx = 0;
+    let modalActiveCottage = null;
+
+    function openDetailsModal(cottageId) {
+      const cottage = activeCottagesList.find(c => c.id === cottageId);
+      if (!cottage) return;
+      modalActiveCottage = cottage;
+      modalCurrentPhotoIdx = 0;
+
+      document.getElementById('modal-c-title').textContent = cottage.name;
+      document.getElementById('modal-c-specs').textContent = `Панорамні котеджі №: ${cottage.cottage_numbers} (${cottage.bedrooms} спалень, ${cottage.floors} пов.)`;
+      document.getElementById('modal-c-desc').innerHTML = `${cottage.description_note}<br><br><strong>Особливості:</strong><br>${cottage.description_bullets.map(b => '• ' + b).join('<br>')}`;
+
+      const mainImg = document.getElementById('modal-main-img');
+      if (mainImg) mainImg.src = cottage.photos[0] || '';
+
+      const thumbsGrid = document.getElementById('modal-thumbs-grid');
+      if (thumbsGrid) {
+        thumbsGrid.innerHTML = cottage.photos.slice(0, 3).map((p, idx) => `
+          <img class="modal-thumb-img ${idx === 0 ? 'active' : ''}" src="${p}" alt="thumb" onclick="setModalPhoto(${idx})">
+        `).join('');
+      }
+
+      const bookBtn = document.getElementById('modal-book-btn');
+      if (bookBtn) {
+        bookBtn.onclick = () => {
+          closeDetailsModal();
+          startBooking(cottage.id);
+        };
+      }
+
+      document.getElementById('cottage-detail-modal').classList.add('active');
+    }
+
+    function closeDetailsModal() {
+      const modal = document.getElementById('cottage-detail-modal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    document.getElementById('modal-detail-close').addEventListener('click', closeDetailsModal);
+    document.getElementById('cottage-detail-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'cottage-detail-modal') closeDetailsModal();
+    });
+
+    function setModalPhoto(idx) {
+      if (!modalActiveCottage || !modalActiveCottage.photos) return;
+      modalCurrentPhotoIdx = idx;
+      const mainImg = document.getElementById('modal-main-img');
+      if (mainImg) mainImg.src = modalActiveCottage.photos[idx];
+      document.querySelectorAll('.modal-thumb-img').forEach((t, i) => {
+        if (i === idx) t.classList.add('active');
+        else t.classList.remove('active');
+      });
+    }
+
+    document.getElementById('modal-prev-photo').addEventListener('click', () => {
+      if (!modalActiveCottage || !modalActiveCottage.photos) return;
+      let idx = modalCurrentPhotoIdx - 1;
+      if (idx < 0) idx = modalActiveCottage.photos.length - 1;
+      setModalPhoto(idx);
+    });
+
+    document.getElementById('modal-next-photo').addEventListener('click', () => {
+      if (!modalActiveCottage || !modalActiveCottage.photos) return;
+      let idx = modalCurrentPhotoIdx + 1;
+      if (idx >= modalActiveCottage.photos.length) idx = 0;
+      setModalPhoto(idx);
+    });
+
+    function startBooking(cottageId) {
+      const cottage = activeCottagesList.find(c => c.id === cottageId);
+      if (!cottage) return;
+      currentSelectedCottage = cottage;
+      setBookingStep(3);
+
+      const checkinDate = checkinCalendar && checkinCalendar.selectedDates[0] ? checkinCalendar.selectedDates[0] : new Date();
+      const checkoutDate = checkoutCalendar && checkoutCalendar.selectedDates[0] ? checkoutCalendar.selectedDates[0] : new Date(Date.now() + 2 * 86400000);
+      const diffTime = Math.abs(checkoutDate - checkinDate);
+      const diffNights = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+      const basePrice = parseFloat(cottage.price) || 22000;
+      const discount = appliedPromo && appliedPromo.discount ? appliedPromo.discount : 0;
+      const finalPrice = discount > 0 ? (basePrice * (1 - discount / 100)) : basePrice;
+
+      document.getElementById('sum-cottage-name').textContent = cottage.name;
+      document.getElementById('sum-dates').textContent = `${formatUADate(checkinDate)} — ${formatUADate(checkoutDate)} (${diffNights} ${diffNights === 1 ? 'ніч' : 'ночі'})`;
+      document.getElementById('sum-guests').textContent = `${adultsCount} дорослих, ${childrenCount} дітей`;
+      document.getElementById('sum-price').textContent = `${finalPrice.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ₴`;
+
+      document.getElementById('booking-data-modal').classList.add('active');
+    }
+
+    function closeBookingModal() {
+      const modal = document.getElementById('booking-data-modal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    document.getElementById('booking-modal-close').addEventListener('click', closeBookingModal);
+    document.getElementById('booking-data-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'booking-data-modal') closeBookingModal();
+    });
+
+    document.getElementById('booking-guest-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const guestName = document.getElementById('guest-name-input').value.trim();
+      const guestPhone = document.getElementById('guest-phone-input').value.trim();
+      const guestNotes = document.getElementById('guest-notes-input').value.trim();
+
+      if (!guestName || !guestPhone) {
+        alert('Будь ласка, заповніть ім\'я та номер телефону');
+        return;
+      }
+
+      const checkinDate = checkinCalendar && checkinCalendar.selectedDates[0] ? checkinCalendar.selectedDates[0] : new Date();
+      const checkoutDate = checkoutCalendar && checkoutCalendar.selectedDates[0] ? checkoutCalendar.selectedDates[0] : new Date(Date.now() + 2 * 86400000);
+      const checkinISO = formatDateISO(checkinDate);
+      const checkoutISO = formatDateISO(checkoutDate);
+
+      const submitBtn = document.getElementById('submit-booking-btn');
+      if (submitBtn) {
+        submitBtn.textContent = 'Збереження бронювання...';
+        submitBtn.disabled = true;
+      }
+
+      const bookingIdCode = `SK-${Math.floor(100000 + Math.random() * 900000)}`;
+
+      try {
+        if (supabaseClient && currentSelectedCottage) {
+          await supabaseClient.from('bookings').insert([{
+            guest_name: guestName,
+            guest_phone: guestPhone,
+            check_in: checkinISO,
+            check_out: checkoutISO,
+            adults_count: adultsCount,
+            children_count: childrenCount,
+            cottage_id: (currentSelectedCottage.id && currentSelectedCottage.id.length === 36) ? currentSelectedCottage.id : null,
+            status: 'pending',
+            notes: `Котедж: ${currentSelectedCottage.name} | ${guestNotes}`
+          }]);
+        }
+      } catch (err) {
+        console.error('Booking save error:', err);
+      }
+
+      if (submitBtn) {
+        submitBtn.textContent = 'Підтвердити бронювання';
+        submitBtn.disabled = false;
+      }
+
+      closeBookingModal();
+      setBookingStep(4);
+      showBookingConfirmation(bookingIdCode, guestName, guestPhone, checkinDate, checkoutDate);
+    });
+
+    function showBookingConfirmation(bookingCode, name, phone, checkin, checkout) {
+      const resultsWrapper = document.getElementById('cottages-results-wrapper');
+      const confirmContainer = document.getElementById('booking-confirmation-container');
+      if (resultsWrapper) resultsWrapper.style.display = 'none';
+
+      if (confirmContainer) {
+        confirmContainer.style.display = 'block';
+        confirmContainer.innerHTML = `
+          <div class="invoice-card-success">
+            <div style="width:64px; height:64px; background:#ecfdf5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; color:#10b981;">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <h2 style="font-size:26px; font-weight:700; color:#0f172a; margin-bottom:8px;">Бронювання успішно оформлено!</h2>
+            <p style="color:#64748b; font-size:15px; margin-bottom:24px;">Дякуємо, <strong>${name}</strong>! Номер вашого бронювання: <strong>#${bookingCode}</strong></p>
+
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:20px 24px; text-align:left; margin-bottom:28px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                <span style="color:#64748b;">Котедж:</span>
+                <strong style="color:#0f172a;">${currentSelectedCottage ? currentSelectedCottage.name : 'Панорамний котедж'}</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                <span style="color:#64748b;">Дати проживання:</span>
+                <span style="color:#0f172a; font-weight:500;">${formatUADate(checkin)} — ${formatUADate(checkout)}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                <span style="color:#64748b;">Гості:</span>
+                <span style="color:#0f172a; font-weight:500;">${adultsCount} дорослих, ${childrenCount} дітей</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                <span style="color:#64748b;">Телефон:</span>
+                <span style="color:#0f172a; font-weight:500;">${phone}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:16px; border-top:1px solid #e2e8f0; padding-top:12px; margin-top:8px;">
+                <span style="color:#0f172a; font-weight:600;">Рахунок:</span>
+                <strong style="color:#09433f; font-size:18px;">${currentSelectedCottage ? (currentSelectedCottage.price).toLocaleString('uk-UA') : ''} ₴</strong>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:14px;">
+              <button type="button" class="btn-choose-cottage" onclick="window.print()" style="background:#f1f5f9; color:#1e293b; border:1px solid #cbd5e1;">Роздрукувати рахунок</button>
+              <button type="button" class="btn-choose-cottage" onclick="location.reload()">Нове бронювання</button>
+            </div>
+          </div>
+        `;
+        confirmContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  </script>
+</body>
+</html>
