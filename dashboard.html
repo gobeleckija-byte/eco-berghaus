@@ -204,20 +204,56 @@
     </div>
 </div>
 
-<!-- ===== MODAL: BOOKING QR CODE ===== -->
-<div class="modal-overlay" id="modal-qr">
-    <div class="modal-box" style="max-width:400px; text-align:center;">
+<!-- ===== MODAL: PROMO ADD / EDIT ===== -->
+<div class="modal-overlay" id="modal-promo">
+    <div class="modal-box">
         <div class="modal-header">
-            <h2>QR-код бронювання</h2>
-            <button class="modal-close" onclick="closeModal('modal-qr')">✕</button>
+            <h2 id="modal-promo-title">Додати промокод</h2>
+            <button class="modal-close" onclick="closeModal('modal-promo')">✕</button>
         </div>
-        <div style="background:#ffffff; padding:18px; border-radius:14px; display:inline-block; margin:6px auto 0;">
-            <canvas id="qr-canvas" width="260" height="260"></canvas>
+        <div class="modal-form">
+            <input type="hidden" id="promo-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Код</label>
+                    <input type="text" id="p-code" placeholder="SUMMER10" style="text-transform:uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>Знижка (%)</label>
+                    <input type="number" id="p-discount" min="1" max="100" placeholder="10">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Макс. використань (порожньо = безліміт)</label>
+                    <input type="number" id="p-max-uses" min="1" placeholder="100">
+                </div>
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select id="p-active">
+                        <option value="true">Активний</option>
+                        <option value="false">Вимкнений</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Дійсний з</label>
+                    <input type="date" id="p-valid-from">
+                </div>
+                <div class="form-group">
+                    <label>Дійсний до</label>
+                    <input type="date" id="p-valid-until">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Опис</label>
+                <input type="text" id="p-description" placeholder="Напр. Літня акція">
+            </div>
         </div>
-        <p id="qr-caption" style="color:#86b3a4; font-size:13px; margin:14px 0 4px;"></p>
         <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModal('modal-qr')">Закрити</button>
-            <button class="btn-primary" id="qr-download-btn">Завантажити PNG</button>
+            <button class="btn-cancel" onclick="closeModal('modal-promo')">Скасувати</button>
+            <button class="btn-primary" onclick="savePromo()">Зберегти</button>
         </div>
     </div>
 </div>
@@ -313,6 +349,10 @@
             <div class="menu-item" data-section="clients-section">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <span>Клієнти</span>
+            </div>
+            <div class="menu-item" data-section="promos-section">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                <span>Промокоди</span>
             </div>
         </div>
         <div class="sidebar-footer">
@@ -442,11 +482,33 @@
             </div>
         </div>
 
+        <!-- ===== PROMOS ===== -->
+        <div id="promos-section" class="section">
+            <div class="page-header">
+                <div><h1>Промокоди</h1><p>Керування знижками та акціями</p></div>
+                <button class="btn-add" onclick="openPromoModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Додати промокод
+                </button>
+            </div>
+            <div class="content-section">
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead><tr>
+                            <th>Код</th><th>Знижка</th><th>Статус</th><th>Використано</th><th>Дійсний</th><th>Опис</th><th>Дії</th>
+                        </tr></thead>
+                        <tbody id="promos-tbody">
+                            <tr><td colspan="7" style="text-align:center;padding:30px;color:#5f8a7c;">Завантаження...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div><!-- /main-content -->
 </div><!-- /dashboard-container -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
-<script src="admin.js?v=2026-08-30-8"></script>
+<script src="admin.js?v=2026-08-30-9"></script>
 </body>
 </html>

@@ -18,6 +18,7 @@ let adminToken = null;
 let currentUser = null;
 let allBookings = [];
 let allCottages = [];
+let allPromos = [];
 let toastTimer = null;
 
 // ============================================================================
@@ -433,6 +434,7 @@ async function loadDashboardData() {
         renderBookings();
         renderCottages();
         renderClients();
+        loadPromos();
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showToast('Не вдалося завантажити дані. Оновіть сторінку.', 'error');
@@ -555,7 +557,6 @@ function renderBookings() {
         const guests = `${b.adults_count || 1} дор. + ${b.children_count || 0} діт.`;
         const actions = `
             <button class="btn-sm btn-edit" onclick="openBookingDetails('${b.id}')">Деталі</button>
-            <button class="btn-sm btn-edit" onclick="openBookingQR('${b.id}')">QR</button>
             ${b.status !== 'confirmed' ? `<button class="btn-sm btn-confirm" onclick="setBookingStatus('${b.id}', 'confirmed')">Підтвердити</button>` : ''}
             ${b.status !== 'cancelled' ? `<button class="btn-sm btn-delete" onclick="setBookingStatus('${b.id}', 'cancelled')">Скасувати</button>` : ''}
             <button class="btn-sm btn-delete" onclick="deleteBooking('${b.id}')">Видалити</button>
@@ -668,40 +669,145 @@ async function setBookingStatus(id, status) {
     }
 }
 
-// ---------- QR-код бронювання ----------
+// ---------- Розділ "Промокоди" ----------
 
-function openBookingQR(id) {
-    const b = allBookings.find(x => x.id === id);
-    if (!b) return;
+function renderPromos() {
+    const tbody = document.getElementById('promos-tbody');
+    if (!tbody) return;
 
-    const code = b.id ? b.id.slice(0, 8).toUpperCase() : 'NEW';
-    const guests = `${b.adults_count || 1} дор. + ${b.children_count || 0} діт.`;
-    const qrText = `EcoBerghaus | Бронювання #${code}\n` +
-        `${b.guest_name || 'Гість'} | ${b.guest_phone || '-'}\n` +
-        `Заїзд: ${formatDate(b.check_in)}  Виїзд: ${formatDate(b.check_out)}\n` +
-        `Гостей: ${guests}`;
-
-    const canvas = document.getElementById('qr-canvas');
-    if (!canvas || typeof QRCode === 'undefined') return;
-
-    QRCode.toCanvas(canvas, qrText, { width: 260, margin: 1 }, (err) => {
-        if (err) console.error('QR render error:', err);
-    });
-
-    const caption = document.getElementById('qr-caption');
-    if (caption) caption.textContent = `#${code} • ${b.guest_name || 'Гість'} • ${formatDate(b.check_in)} — ${formatDate(b.check_out)}`;
-
-    const dlBtn = document.getElementById('qr-download-btn');
-    if (dlBtn) {
-        dlBtn.onclick = () => {
-            const a = document.createElement('a');
-            a.href = canvas.toDataURL('image/png');
-            a.download = `qr_booking_${code}.png`;
-            a.click();
-        };
+    if (!allPromos || allPromos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#5f8a7c;">Промокодів поки немає. Додайте перший.</td></tr>';
+        return;
     }
 
-    openModal('modal-qr');
+    tbody.innerHTML = allPromos.map(p => {
+        const uses = `${p.current_uses || 0}${p.max_uses ? ' / ' + p.max_uses : ' / ∞'}`;
+        const validFrom = p.valid_from ? formatDate(p.valid_from) : '—';
+        const validUntil = p.valid_until ? formatDate(p.valid_until) : '—';
+        const expired = p.valid_until && new Date(p.valid_until) < new Date();
+        return `
+            <tr>
+                <td><strong>${escapeHtml(p.code)}</strong></td>
+                <td>-${p.discount}%</td>
+                <td><span class="badge ${p.active && !expired ? 'badge-active' : 'badge-inactive'}">${p.active && !expired ? 'Активний' : (expired ? 'Прострочений' : 'Вимкнений')}</span></td>
+                <td>${uses}</td>
+                <td>${validFrom} — ${validUntil}</td>
+                <td>${escapeHtml(p.description || '—')}</td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editPromo('${p.id}')">Редагувати</button>
+                    <button class="btn-sm btn-delete" onclick="deletePromo('${p.id}')">Видалити</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function openPromoModal(id) {
+    const p = id ? allPromos.find(x => x.id === id) : null;
+
+    document.getElementById('modal-promo-title').textContent = p ? 'Редагувати промокод' : 'Додати промокод';
+    document.getElementById('promo-id').value = p ? p.id : '';
+    document.getElementById('p-code').value = p ? (p.code || '') : '';
+    document.getElementById('p-discount').value = p ? (p.discount || '') : '';
+    document.getElementById('p-max-uses').value = p && p.max_uses ? p.max_uses : '';
+    document.getElementById('p-active').value = p ? String(!!p.active) : 'true';
+    document.getElementById('p-valid-from').value = p && p.valid_from ? p.valid_from.slice(0, 10) : '';
+    document.getElementById('p-valid-until').value = p && p.valid_until ? p.valid_until.slice(0, 10) : '';
+    document.getElementById('p-description').value = p ? (p.description || '') : '';
+
+    openModal('modal-promo');
+}
+
+function editPromo(id) {
+    openPromoModal(id);
+}
+
+async function savePromo() {
+    const payload = {
+        id: document.getElementById('promo-id').value,
+        code: document.getElementById('p-code').value.trim().toUpperCase(),
+        discount: parseInt(document.getElementById('p-discount').value, 10),
+        active: document.getElementById('p-active').value === 'true',
+        max_uses: document.getElementById('p-max-uses').value.trim(),
+        valid_from: document.getElementById('p-valid-from').value,
+        valid_until: document.getElementById('p-valid-until').value,
+        description: document.getElementById('p-description').value.trim()
+    };
+
+    if (!payload.code || !payload.discount) {
+        showToast('Вкажіть код та розмір знижки', 'error');
+        return;
+    }
+
+    try {
+        const { data, error } = await supabaseClient.rpc('admin_save_promo', {
+            p_token: adminToken,
+            p_data: payload
+        });
+
+        if (error) throw error;
+        if (data.status === 'unauthorized') {
+            showToast('Сесію завершено. Увійдіть знову.', 'error');
+            setTimeout(logout, 1200);
+            return;
+        }
+        if (data.status === 'invalid') {
+            showToast(data.message || 'Некоректні дані промокоду', 'error');
+            return;
+        }
+
+        closeModal('modal-promo');
+        showToast('Промокод збережено', 'success');
+        await loadPromos();
+    } catch (err) {
+        console.error('Save promo error:', err);
+        showToast('Помилка збереження промокоду', 'error');
+    }
+}
+
+async function deletePromo(id) {
+    if (!window.confirm('Видалити цей промокод?')) return;
+
+    try {
+        const { data, error } = await supabaseClient.rpc('admin_delete_promo', {
+            p_token: adminToken,
+            p_id: id
+        });
+
+        if (error) throw error;
+        if (data.status === 'unauthorized') {
+            showToast('Сесію завершено. Увійдіть знову.', 'error');
+            setTimeout(logout, 1200);
+            return;
+        }
+
+        showToast('Промокод видалено', 'success');
+        await loadPromos();
+    } catch (err) {
+        console.error('Delete promo error:', err);
+        showToast('Помилка видалення промокоду', 'error');
+    }
+}
+
+async function loadPromos() {
+    try {
+        const { data, error } = await supabaseClient.rpc('admin_get_promos', {
+            p_token: adminToken
+        });
+
+        if (error) throw error;
+        if (!data || data.status === 'unauthorized') {
+            showToast('Сесію завершено. Увійдіть знову.', 'error');
+            setTimeout(logout, 1200);
+            return;
+        }
+
+        allPromos = data.promos || [];
+        renderPromos();
+    } catch (error) {
+        console.error('Error loading promos:', error);
+        showToast('Не вдалося завантажити промокоди', 'error');
+    }
 }
 
 async function deleteBooking(id) {    if (!window.confirm('Видалити це бронювання?')) return;
