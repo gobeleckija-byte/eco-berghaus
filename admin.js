@@ -581,6 +581,7 @@ function renderBookings() {
             <button class="btn-sm btn-edit" onclick="openBookingDetails('${b.id}')">Деталі</button>
             ${b.status !== 'confirmed' ? `<button class="btn-sm btn-confirm" onclick="setBookingStatus('${b.id}', 'confirmed')">Підтвердити</button>` : ''}
             ${b.status !== 'cancelled' ? `<button class="btn-sm btn-delete" onclick="setBookingStatus('${b.id}', 'cancelled')">Скасувати</button>` : ''}
+            <button class="btn-sm btn-delete" onclick="deleteBooking('${b.id}')">Видалити</button>
         `;
         return `
             <tr>
