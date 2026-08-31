@@ -40,14 +40,16 @@ serve(async (req: Request) => {
       return json({ error: "Не передано токен або файл" }, 400);
     }
 
-    // Перевірка сесії адміністратора
+    // Перевірка сесії адміністратора + пролонгація (як у admin_* RPC)
     const { data: session } = await supabaseAdmin
       .from("admin_sessions")
-      .select("expires_at")
+      .update({ expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() })
       .eq("token", token)
+      .gt("expires_at", new Date().toISOString())
+      .select("expires_at")
       .single();
 
-    if (!session || new Date(session.expires_at) <= new Date()) {
+    if (!session) {
       return json({ error: "Сесію завершено" }, 401);
     }
 

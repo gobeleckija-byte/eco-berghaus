@@ -946,6 +946,13 @@ async function uploadCottagePhotos(files) {
             const res = await fetch(COTTAGE_PHOTOS_URL, { method: 'POST', body: fd });
             const data = await res.json().catch(() => ({}));
 
+            if (res.status === 401) {
+                if (statusEl) statusEl.textContent = '';
+                showToast('Сесію завершено. Увійдіть знову.', 'error');
+                setTimeout(logout, 1500);
+                return;
+            }
+
             if (!res.ok || !data.url) {
                 if (statusEl) statusEl.textContent = data.error || 'Помилка завантаження';
                 continue;
