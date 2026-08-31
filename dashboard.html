@@ -559,8 +559,29 @@
                 </button>
             </div>
 
+            <!-- Картка: Статус сайту (відкритий/закритий) -->
+            <div class="content-section" id="site-status-card" style="margin-bottom:24px; border:1px solid rgba(52,211,153,0.25);">
+                <h3 style="color:#ecfdf5; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+                    <span id="site-status-icon">🟢</span> Статус сайту
+                </h3>
+                <p style="color:#86b3a4; font-size:13px; margin:0 0 16px;">При закритті сайт показує повідомлення відвідувачам, а створення бронювань блокується навіть через API. Адмін-панель продовжує працювати.</p>
+                <div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">
+                    <div class="form-group" style="margin:0; min-width:220px;">
+                        <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Режим публічного сайту</label>
+                        <select id="set-site-closed" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" onchange="updateSiteStatusPreview()">
+                            <option value="false">🟢 Відкритий — бронювання доступне</option>
+                            <option value="true">🔴 Закритий — бронювання вимкнено</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0; flex:1; min-width:300px;">
+                        <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Повідомлення при закритті (бачать відвідувачі сайту)</label>
+                        <textarea id="set-site-closed-msg" style="width:100%; min-height:64px; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:13.5px; font-family:inherit; resize:vertical; outline:none;" placeholder="На даний момент сайт закритий..."></textarea>
+                    </div>
+                </div>
+            </div>
+
             <div class="settings-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 24px;">
-                
+
                 <!-- Картка: Умови тарифу та інформація -->
                 <div class="content-section" style="margin-bottom:0;">
                     <h3 style="color:#ecfdf5; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
@@ -668,6 +689,6 @@
 </div><!-- /dashboard-container -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="admin.js?v=2026-08-30-13"></script>
+<script src="admin.js?v=2026-08-30-14"></script>
 </body>
 </html>

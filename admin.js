@@ -1182,6 +1182,21 @@ async function deleteCottage(id) {
 
 let allSiteSettings = {};
 
+function updateSiteStatusPreview() {
+    const sel = document.getElementById('set-site-closed');
+    const icon = document.getElementById('site-status-icon');
+    const card = document.getElementById('site-status-card');
+    if (!sel || !icon || !card) return;
+
+    if (sel.value === 'true') {
+        icon.textContent = '🔴';
+        card.style.borderColor = 'rgba(239, 68, 68, 0.45)';
+    } else {
+        icon.textContent = '🟢';
+        card.style.borderColor = 'rgba(52, 211, 153, 0.25)';
+    }
+}
+
 async function loadSiteSettings() {
     try {
         const { data, error } = await supabaseClient.rpc('admin_get_settings', {
@@ -1206,6 +1221,11 @@ function renderSiteSettings(s) {
         const el = document.getElementById(id);
         if (el) el.value = (val != null && val !== '') ? val : defaultVal;
     };
+
+    // Статус сайту (відкритий/закритий) + повідомлення закриття
+    setVal('set-site-closed', s.site_closed === 'true' ? 'true' : 'false', 'false');
+    setVal('set-site-closed-msg', s.site_closed_message, 'На даний момент сайт закритий. Зателефонуйте нам або напишіть у Telegram — і ми оформимо бронювання особисто.');
+    updateSiteStatusPreview();
 
     // Умови тарифу
     const tariffInc = s.tariff_includes != null
@@ -1246,6 +1266,8 @@ async function saveAllSettings() {
     const cottageFooter = getVal('set-cottage-footer').split('\n').map(l => l.trim()).filter(Boolean).join('|');
 
     const payload = {
+        site_closed: getVal('set-site-closed') === 'true' ? 'true' : 'false',
+        site_closed_message: getVal('set-site-closed-msg') || 'На даний момент сайт закритий.',
         tariff_includes: tariffIncludes,
         cottage_details_footer: cottageFooter,
         checkin_time: getVal('set-checkin-time') || '15:00',

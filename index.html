@@ -2152,6 +2152,32 @@ const supabaseClient = (window.supabase && typeof window.supabase.createClient =
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
+// Загальні налаштування сайту (ініціалізація з дефолтними значеннями та завантаження з Supabase)
+let siteSettings = {
+  tariff_includes: 'Безкоштовне скасування бронювання за 7 днів до заїзду|Сніданок «Шведська лінія» включено у вартість|Безлімітний доступ до басейну та SPA-комплексу Rosa',
+  cottage_details_footer: 'Котеджі повністю оснащені усім необхідним для комфортного проживання — вам варто взяти лише особисті речі.|* Додаткове місце в котеджі оплачується окремо.|На території містечка є всі необхідні зручності: ресторан, дитячий та спортивний майданчики, власна парковка, цілодобова охорона, спа-комплекс, а розваги курорту Буковель — всього за 2 км.|До зустрічі в EcoBerghaus! Чекаємо на знайомство з вами 💛',
+  min_stay_standard: '2',
+  min_stay_holidays: '4',
+  payment_recipient: '',
+  payment_iban: '',
+  payment_edrpou: '',
+  payment_purpose: ''
+};
+
+async function fetchSiteSettings() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient.from('site_settings').select('*');
+    if (!error && data && data.length > 0) {
+      data.forEach(item => {
+        if (item.key && item.value) siteSettings[item.key] = item.value;
+      });
+    }
+  } catch (e) {
+    console.warn('Failed to load site settings:', e);
+  }
+}
+
 // Telegram-сповіщення надсилає тригер у базі даних після створення бронювання
 
 // Ukrainian month names
@@ -2264,7 +2290,57 @@ window.setBookingStep = function(stepNumber) {
   }
 };
 
+// ============ Режим "Сайт закрито" (керування з адмін-панелі) ============
+
+let siteClosedMessage = '';
+
+function showSiteClosedScreen(msg, contacts) {
+  siteClosedMessage = msg || 'На даний момент сайт закритий.';
+  const wrap = document.getElementById('customBookingContainer');
+  if (!wrap) return;
+
+  const c = contacts || {};
+  const esc = (s) => String(s || '').replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+
+  wrap.innerHTML = `
+    <div style="max-width:640px; margin:40px auto; background:#ffffff; border:1px solid #e2e8f0; border-radius:20px; padding:44px 36px; text-align:center; box-shadow:0 10px 30px rgba(15,23,42,0.08);">
+      <div style="font-size:52px; margin-bottom:14px;">🔒</div>
+      <h2 style="font-size:26px; font-weight:700; color:#0f172a; margin:0 0 12px;">На даний момент сайт закритий</h2>
+      <p style="font-size:15.5px; color:#475569; line-height:1.65; margin:0 0 22px;">${esc(siteClosedMessage)}</p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        ${c.contact_phone ? `<a href="tel:${esc(c.contact_phone.replace(/[^+\d]/g, ''))}" style="background:#09433f; color:#fff; text-decoration:none; padding:12px 22px; border-radius:12px; font-size:15px; font-weight:600;">📞 ${esc(c.contact_phone)}</a>` : ''}
+        ${c.contact_email ? `<a href="mailto:${esc(c.contact_email)}" style="background:#f0faf7; color:#09433f; border:1px solid rgba(9,67,63,0.3); text-decoration:none; padding:12px 22px; border-radius:12px; font-size:15px; font-weight:600;">✉️ ${esc(c.contact_email)}</a>` : ''}
+        ${c.contact_telegram ? `<a href="${esc(c.contact_telegram)}" target="_blank" rel="noopener" style="background:#f0faf7; color:#09433f; border:1px solid rgba(9,67,63,0.3); text-decoration:none; padding:12px 22px; border-radius:12px; font-size:15px; font-weight:600;">✈️ Telegram</a>` : ''}
+      </div>
+    </div>`;
+}
+
+async function checkSiteClosed() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('site_settings')
+      .select('key, value')
+      .in('key', ['site_closed', 'site_closed_message', 'contact_phone', 'contact_email', 'contact_telegram']);
+
+    if (error) throw error;
+
+    const map = {};
+    (data || []).forEach(row => { map[row.key] = row.value; });
+
+    if (map.site_closed === 'true') {
+      showSiteClosedScreen(map.site_closed_message, map);
+    }
+  } catch (err) {
+    console.warn('Не вдалося перевірити статус сайту:', err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Перевіряємо режим "сайт закрито" одразу після завантаження
+  checkSiteClosed();
+
   // Setup default dates: Check-in Today, Check-out +2 days
   const defaultCheckIn = new Date();
   const defaultCheckOut = new Date();
@@ -2678,9 +2754,8 @@ function renderCottagesCards(cottages, suggestedSlots = [], noCapacityFound = fa
           <div class="tariff-drawer-box" id="tariff-drawer-${c.id}">
             <strong>Тариф "${c.tariff || 'Rack Rate'}":</strong>
             <ul style="margin: 6px 0 0 18px; padding: 0;">
-              <li>Безкоштовне скасування бронювання за 7 днів до заїзду</li>
-              <li>Сніданок «Шведська лінія» включено у вартість</li>
-              <li>Безлімітний доступ до басейну та SPA-комплексу Rosa</li>
+              ${(siteSettings.tariff_includes || 'Безкоштовне скасування бронювання за 7 днів до заїзду|Сніданок «Шведська лінія» включено у вартість|Безлімітний доступ до басейну та SPA-комплексу Rosa')
+                .split('|').map(item => `<li>${item.trim()}</li>`).join('')}
             </ul>
           </div>
 
@@ -2779,14 +2854,22 @@ function openDetailsModal(cottageId) {
   modalActiveCottage = cottage;
   modalCurrentPhotoIdx = 0;
 
+  const footerParts = (siteSettings.cottage_details_footer || 'Котеджі повністю оснащені усім необхідним для комфортного проживання — вам варто взяти лише особисті речі.|* Додаткове місце в котеджі оплачується окремо.|На території містечка є всі необхідні зручності: ресторан, дитячий та спортивний майданчики, власна парковка, цілодобова охорона, спа-комплекс, а розваги курорту Буковель — всього за 2 км.|До зустрічі в EcoBerghaus! Чекаємо на знайомство з вами 💛')
+    .split('|')
+    .map(p => p.trim())
+    .filter(Boolean);
+
+  const footerHTML = footerParts.map((p, idx) => {
+    if (p.startsWith('*')) return `<div style="margin-top:4px; font-size:13px; color:#64748b;">${p}</div>`;
+    if (idx === footerParts.length - 1 && p.includes('💛')) return `<div style="margin-top:10px;"><strong>${p}</strong></div>`;
+    return `<div style="margin-top:6px;">${p}</div>`;
+  }).join('');
+
   document.getElementById('modal-c-title').textContent = cottage.name;
   document.getElementById('modal-c-specs').textContent = `Панорамні котеджі №: ${cottage.cottage_numbers} (${cottage.bedrooms} спалень, ${cottage.floors} пов.)`;
   document.getElementById('modal-c-desc').innerHTML = `${cottage.description_note}<br><br>` +
-    `<strong>Особливості:</strong><br>${cottage.description_bullets.map(b => '• ' + b).join('<br')}<br><br>` +
-    `<div style="margin-top:6px;">Котеджі повністю оснащені усім необхідним для комфортного проживання — вам варто взяти лише особисті речі.</div>` +
-    `<div style="margin-top:4px; font-size:13px; color:#64748b;">* Додаткове місце в котеджі оплачується окремо.</div><br>` +
-    `На території містечка є всі необхідні зручності: ресторан, дитячий та спортивний майданчики, власна парковка, цілодобова охорона, лижна школа та прокат спорядження, спа-комплекс, а розваги курорту Буковель — всього за 2 км.<br><br>` +
-    `<strong>До зустрічі в EcoBerghaus! Чекаємо на знайомство з вами 💛</strong>`;
+    `<strong>Особливості:</strong><br>${cottage.description_bullets.map(b => '• ' + b).join('<br>')}<br>` +
+    footerHTML;
 
   const mainImg = document.getElementById('modal-main-img');
   if (mainImg) {
@@ -2969,6 +3052,16 @@ function showBookingConfirmation(bookingCode, name, phone, checkin, checkout, ex
           </div>
         </div>
 
+        ${siteSettings.payment_iban && siteSettings.payment_iban !== 'UA000000000000000000000000000' ? `
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:14px; padding:16px 20px; margin-bottom:24px; font-size:13.5px; color:#334155; text-align:left;">
+          <strong style="color:#0f172a; font-size:14px; display:block; margin-bottom:8px;">💳 Реквізити для оплати:</strong>
+          <div style="margin-bottom:4px;"><strong>Отримувач:</strong> ${esc(siteSettings.payment_recipient || 'ФОП EcoBerghaus')}</div>
+          <div style="margin-bottom:4px;"><strong>Код ЄДРПОУ / РНОКПП:</strong> ${esc(siteSettings.payment_edrpou || '—')}</div>
+          <div style="margin-bottom:4px;"><strong>IBAN рахунок:</strong> <span style="font-family:monospace; font-weight:600; color:#09433f;">${esc(siteSettings.payment_iban)}</span></div>
+          <div><strong>Призначення:</strong> ${esc(siteSettings.payment_purpose || 'Оплата за проживання у котеджі')} (Рахунок #${bookingCode})</div>
+        </div>
+        ` : ''}
+
         <div style="display:flex; justify-content:center; gap:14px;">
           <button type="button" class="btn-choose-cottage" onclick="window.print()" style="background:#f1f5f9; color:#1e293b; border:1px solid #cbd5e1;">Роздрукувати рахунок</button>
           <button type="button" class="btn-choose-cottage" onclick="location.reload()">Нове бронювання</button>
@@ -2980,6 +3073,8 @@ function showBookingConfirmation(bookingCode, name, phone, checkin, checkout, ex
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Завантажуємо актуальні налаштування сайту
+  fetchSiteSettings();
   // --- Detail Modal close handlers ---
   const detailCloseBtn = document.getElementById('modal-detail-close');
   if (detailCloseBtn) detailCloseBtn.addEventListener('click', closeDetailsModal);
@@ -3077,6 +3172,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!data || data.status !== 'ok') {
           saveOk = false;
+
+          if (data && data.status === 'site_closed') {
+            alert(data.message || 'На даний момент сайт закритий.');
+            await checkSiteClosed();
+            return;
+          }
+
           const msg = (data && data.message) || 'Не вдалося оформити бронювання';
           alert(data && data.status === 'rate_limited'
             ? 'Занадто багато бронювань з цього пристрою. Спробуйте пізніше.'

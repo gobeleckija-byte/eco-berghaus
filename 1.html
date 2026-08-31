@@ -2290,7 +2290,57 @@ window.setBookingStep = function(stepNumber) {
   }
 };
 
+// ============ Режим "Сайт закрито" (керування з адмін-панелі) ============
+
+let siteClosedMessage = '';
+
+function showSiteClosedScreen(msg, contacts) {
+  siteClosedMessage = msg || 'На даний момент сайт закритий.';
+  const wrap = document.getElementById('customBookingContainer');
+  if (!wrap) return;
+
+  const c = contacts || {};
+  const esc = (s) => String(s || '').replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+
+  wrap.innerHTML = `
+    <div style="max-width:640px; margin:40px auto; background:#ffffff; border:1px solid #e2e8f0; border-radius:20px; padding:44px 36px; text-align:center; box-shadow:0 10px 30px rgba(15,23,42,0.08);">
+      <div style="font-size:52px; margin-bottom:14px;">🔒</div>
+      <h2 style="font-size:26px; font-weight:700; color:#0f172a; margin:0 0 12px;">На даний момент сайт закритий</h2>
+      <p style="font-size:15.5px; color:#475569; line-height:1.65; margin:0 0 22px;">${esc(siteClosedMessage)}</p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        ${c.contact_phone ? `<a href="tel:${esc(c.contact_phone.replace(/[^+\d]/g, ''))}" style="background:#09433f; color:#fff; text-decoration:none; padding:12px 22px; border-radius:12px; font-size:15px; font-weight:600;">📞 ${esc(c.contact_phone)}</a>` : ''}
+        ${c.contact_email ? `<a href="mailto:${esc(c.contact_email)}" style="background:#f0faf7; color:#09433f; border:1px solid rgba(9,67,63,0.3); text-decoration:none; padding:12px 22px; border-radius:12px; font-size:15px; font-weight:600;">✉️ ${esc(c.contact_email)}</a>` : ''}
+        ${c.contact_telegram ? `<a href="${esc(c.contact_telegram)}" target="_blank" rel="noopener" style="background:#f0faf7; color:#09433f; border:1px solid rgba(9,67,63,0.3); text-decoration:none; padding:12px 22px; border-radius:12px; font-size:15px; font-weight:600;">✈️ Telegram</a>` : ''}
+      </div>
+    </div>`;
+}
+
+async function checkSiteClosed() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('site_settings')
+      .select('key, value')
+      .in('key', ['site_closed', 'site_closed_message', 'contact_phone', 'contact_email', 'contact_telegram']);
+
+    if (error) throw error;
+
+    const map = {};
+    (data || []).forEach(row => { map[row.key] = row.value; });
+
+    if (map.site_closed === 'true') {
+      showSiteClosedScreen(map.site_closed_message, map);
+    }
+  } catch (err) {
+    console.warn('Не вдалося перевірити статус сайту:', err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Перевіряємо режим "сайт закрито" одразу після завантаження
+  checkSiteClosed();
+
   // Setup default dates: Check-in Today, Check-out +2 days
   const defaultCheckIn = new Date();
   const defaultCheckOut = new Date();
@@ -3122,6 +3172,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!data || data.status !== 'ok') {
           saveOk = false;
+
+          if (data && data.status === 'site_closed') {
+            alert(data.message || 'На даний момент сайт закритий.');
+            await checkSiteClosed();
+            return;
+          }
+
           const msg = (data && data.message) || 'Не вдалося оформити бронювання';
           alert(data && data.status === 'rate_limited'
             ? 'Занадто багато бронювань з цього пристрою. Спробуйте пізніше.'
