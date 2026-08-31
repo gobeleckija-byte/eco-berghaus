@@ -391,10 +391,80 @@ document.addEventListener('DOMContentLoaded', () => {
 // 4. ДАШБОРД (dashboard.html)
 // ============================================================================
 
+// ---------- Сесія: лічильник, пролонгація, автоматичний вихід ----------
+
+const SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 години, як на сервері
+let sessionWatchInterval = null;
+let sessionEnding = false;
+
+// Дзеркалимо серверну пролонгацію: кожна успішна операція адмінки подовжує сесію
+function refreshClientSession() {
+    const raw = sessionStorage.getItem('admin_secure_session');
+    if (!raw) return;
+    try {
+        const session = JSON.parse(raw);
+        session.expires_at = Date.now() + SESSION_TTL_MS;
+        sessionStorage.setItem('admin_secure_session', JSON.stringify(session));
+    } catch (e) { /* ignore */ }
+}
+
+function formatRemaining(ms) {
+    if (ms <= 0) return '0 хв';
+    const mins = Math.floor(ms / 60000);
+    if (mins >= 60) {
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return m > 0 ? `${h} год ${m} хв` : `${h} год`;
+    }
+    return `${mins} хв`;
+}
+
+function startSessionWatch() {
+    updateSessionTimer();
+
+    if (sessionWatchInterval) clearInterval(sessionWatchInterval);
+    sessionWatchInterval = setInterval(() => {
+        if (sessionEnding) return;
+        updateSessionTimer();
+
+        const raw = sessionStorage.getItem('admin_secure_session');
+        if (!raw) return;
+        try {
+            const session = JSON.parse(raw);
+            if (Date.now() > session.expires_at) {
+                sessionEnding = true;
+                clearInterval(sessionWatchInterval);
+                showToast('Час сесії вичерпано. Виконуємо вихід...', 'error');
+                setTimeout(logout, 1500);
+            }
+        } catch (e) {
+            logout();
+        }
+    }, 30000);
+}
+
+function updateSessionTimer() {
+    const timerEl = document.getElementById('session-timer');
+    if (!timerEl) return;
+
+    const raw = sessionStorage.getItem('admin_secure_session');
+    if (!raw) return;
+    try {
+        const session = JSON.parse(raw);
+        const remaining = session.expires_at - Date.now();
+        timerEl.textContent = remaining > 0
+            ? `⏱ Сесія: ${formatRemaining(remaining)}`
+            : '⏱ Сесія: завершується...';
+    } catch (e) { /* ignore */ }
+}
+
 function initDashboard() {
     // Ім'я адміністратора в сайдбарі
     const userLabel = document.getElementById('admin-username-label');
     if (userLabel) userLabel.textContent = 'Користувач: ' + currentUser;
+
+    // Автоматичний вихід при закінченні сесії + лічильник часу в сайдбарі
+    startSessionWatch();
 
     // Перемикання розділів меню
     const menuItems = document.querySelectorAll('.menu-item[data-section]');
@@ -437,6 +507,9 @@ async function loadDashboardData() {
 
         allBookings = data.bookings || [];
         allCottages = data.cottages || [];
+
+        refreshClientSession();
+        updateSessionTimer();
 
         updateStats();
         renderRecentBookings();
@@ -812,6 +885,8 @@ async function loadPromos() {
         }
 
         allPromos = data.promos || [];
+        refreshClientSession();
+        updateSessionTimer();
         renderPromos();
     } catch (error) {
         console.error('Error loading promos:', error);
@@ -959,6 +1034,8 @@ async function uploadCottagePhotos(files) {
             }
 
             cottagePhotosState.push(data.url);
+            refreshClientSession();
+            updateSessionTimer();
             uploaded++;
         } catch (err) {
             console.error('Photo upload error:', err);
