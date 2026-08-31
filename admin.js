@@ -1018,7 +1018,11 @@ async function uploadCottagePhotos(files) {
             fd.append('token', adminToken);
             fd.append('file', file);
 
-            const res = await fetch(COTTAGE_PHOTOS_URL, { method: 'POST', body: fd });
+            const res = await fetch(COTTAGE_PHOTOS_URL, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+                body: fd
+            });
             const data = await res.json().catch(() => ({}));
 
             if (res.status === 401) {
