@@ -877,8 +877,19 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
+    max-height: 340px;
     height: 340px;
-    align-content: space-between;
+    align-content: start;
+    overflow-y: auto;
+  }
+
+  .modal-gallery-right::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .modal-gallery-right::-webkit-scrollbar-thumb {
+    background: rgba(9, 67, 63, 0.3);
+    border-radius: 4px;
   }
 
   .modal-thumb-img {
@@ -2468,7 +2479,12 @@ async function performSearch(withAnimation = true) {
               status: c.status,
               remaining: 1,
               photos: photosList,
-              description_bullets: bullets.length > 0 ? bullets : ['Панорамний вид на гори', 'Кухня-студія', 'Санвузол', 'Тераса з BBQ'],
+              description_bullets: bullets.length > 0 ? bullets : [
+                'Кухня-студія зі зручним розкладним диваном',
+                'Спальня з королівським двоспальним ліжком',
+                'Санвузол',
+                'Простора тераса з власною зоною барбекю та меблями для відпочинку'
+              ],
               description_note: restNote || c.description || 'Комфортний котедж з усіма зручностями серед мальовничої природи Карпат.'
             };
           });
@@ -2765,7 +2781,12 @@ function openDetailsModal(cottageId) {
 
   document.getElementById('modal-c-title').textContent = cottage.name;
   document.getElementById('modal-c-specs').textContent = `Панорамні котеджі №: ${cottage.cottage_numbers} (${cottage.bedrooms} спалень, ${cottage.floors} пов.)`;
-  document.getElementById('modal-c-desc').innerHTML = `${cottage.description_note}<br><br><strong>Особливості:</strong><br>${cottage.description_bullets.map(b => '• ' + b).join('<br>')}`;
+  document.getElementById('modal-c-desc').innerHTML = `${cottage.description_note}<br><br>` +
+    `<strong>Особливості:</strong><br>${cottage.description_bullets.map(b => '• ' + b).join('<br')}<br><br>` +
+    `<div style="margin-top:6px;">Котеджі повністю оснащені усім необхідним для комфортного проживання — вам варто взяти лише особисті речі.</div>` +
+    `<div style="margin-top:4px; font-size:13px; color:#64748b;">* Додаткове місце в котеджі оплачується окремо.</div><br>` +
+    `На території містечка є всі необхідні зручності: ресторан, дитячий та спортивний майданчики, власна парковка, цілодобова охорона, лижна школа та прокат спорядження, спа-комплекс, а розваги курорту Буковель — всього за 2 км.<br><br>` +
+    `<strong>До зустрічі в EcoBerghaus! Чекаємо на знайомство з вами 💛</strong>`;
 
   const mainImg = document.getElementById('modal-main-img');
   if (mainImg) {
@@ -2777,7 +2798,7 @@ function openDetailsModal(cottageId) {
 
   const thumbsGrid = document.getElementById('modal-thumbs-grid');
   if (thumbsGrid) {
-    thumbsGrid.innerHTML = cottage.photos.slice(0, 3).map((p, idx) => `
+    thumbsGrid.innerHTML = cottage.photos.map((p, idx) => `
       <img class="modal-thumb-img ${idx === 0 ? 'active' : ''}" src="${p}" loading="lazy" alt="Котедж ${cottage.name} — фото ${idx + 1}" onclick="setModalPhoto(${idx})">
     `).join('');
   }
