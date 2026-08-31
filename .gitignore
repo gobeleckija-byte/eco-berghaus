@@ -1,1 +1,27 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables (ніколи не комітити секрети!)
+.env
+.env.local
+.env.production
+
+# Railway
+.railway/
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+
+# IDE
+.vscode/
+.idea/
+
+# Test screenshots (не потрібні на сервері)
 gui-test-screenshots/

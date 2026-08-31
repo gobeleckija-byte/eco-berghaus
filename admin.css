@@ -1432,3 +1432,36 @@ body {
 .empty-state p {
     font-size: 15px;
 }
+
+/* Quick Add Feature Chips */
+.btn-chip {
+    background: rgba(16, 185, 129, 0.1);
+    color: #86b3a4;
+    border: 1px solid rgba(52, 211, 153, 0.2);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-chip:hover {
+    background: rgba(16, 185, 129, 0.22);
+    color: #ecfdf5;
+    border-color: #10b981;
+    transform: translateY(-1px);
+}
+
+.btn-chip:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 900px) {
+    .settings-grid {
+        grid-template-columns: 1fr !important;
+    }
+}

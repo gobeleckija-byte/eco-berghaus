@@ -151,3 +151,82 @@ CREATE INDEX IF NOT EXISTS idx_promo_codes_code ON promo_codes(code);
 
 -- Створення індексу для пошуку активних промокодів
 CREATE INDEX IF NOT EXISTS idx_promo_codes_active ON promo_codes(active);
+
+-- ============================================================================
+-- Таблиця налаштувань сайту (site_settings)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS site_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read site_settings" ON site_settings;
+CREATE POLICY "Allow public read site_settings" ON site_settings
+    FOR SELECT TO public USING (true);
+
+-- Дефолтні налаштування
+INSERT INTO site_settings (key, value) VALUES
+(
+    'tariff_includes',
+    'Безкоштовне скасування бронювання за 7 днів до заїзду|Сніданок «Шведська лінія» включено у вартість|Безлімітний доступ до басейну та SPA-комплексу Rosa'
+),
+(
+    'cottage_details_footer',
+    'Котеджі повністю оснащені усім необхідним для комфортного проживання — вам варто взяти лише особисті речі.|* Додаткове місце в котеджі оплачується окремо.|На території містечка є всі необхідні зручності: ресторан, дитячий та спортивний майданчики, власна парковка, цілодобова охорона, спа-комплекс, а розваги курорту Буковель — всього за 2 км.|До зустрічі в EcoBerghaus! Чекаємо на знайомство з вами 💛'
+),
+(
+    'checkin_time',
+    '15:00'
+),
+(
+    'checkout_time',
+    '11:00'
+),
+(
+    'min_stay_standard',
+    '2'
+),
+(
+    'min_stay_holidays',
+    '4'
+),
+(
+    'contact_phone',
+    '+38 (067) 000-00-00'
+),
+(
+    'contact_email',
+    'booking.depart@gmail.com'
+),
+(
+    'contact_telegram',
+    'https://t.me/ecoberghaus'
+),
+(
+    'contact_instagram',
+    'https://instagram.com/ecoberghaus'
+),
+(
+    'contact_address',
+    'Івано-Франківська область, с. Поляниця, ур. Прелуки, Буковель'
+),
+(
+    'payment_recipient',
+    'ФОП EcoBerghaus'
+),
+(
+    'payment_iban',
+    'UA000000000000000000000000000'
+),
+(
+    'payment_edrpou',
+    '00000000'
+),
+(
+    'payment_purpose',
+    'Оплата за проживання у котеджі згідно рахунку'
+)
+ON CONFLICT (key) DO NOTHING;

@@ -251,13 +251,13 @@ CREATE POLICY "Admin full cottages access" ON cottages
 -- ============================================================================
 -- 6. ДЕФОЛТНИЙ АДМІНІСТРАТОР (bcrypt cost 12)
 -- Логін: admin@ecoberghaus.com.ua
--- Пароль за замовчуванням: EcoBerghaus2026! (змініть при першому вході)
+-- Пароль задайте власний (зовсім не комітуйте у репозиторій)
 -- ============================================================================
 INSERT INTO admin_users (email, password_hash, role)
 VALUES (
     'admin@ecoberghaus.com.ua',
-    crypt('EcoBerghaus2026!', gen_salt('bf', 12)),
+    crypt('ВКАЖІТЬ_ВЛАСНИЙ_ПАРОЛЬ', gen_salt('bf', 12)),
     'admin'
 )
 ON CONFLICT (email) DO UPDATE
-SET password_hash = crypt('EcoBerghaus2026!', gen_salt('bf', 12));
+SET password_hash = crypt('ВКАЖІТЬ_ВЛАСНИЙ_ПАРОЛЬ', gen_salt('bf', 12));

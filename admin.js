@@ -28,7 +28,7 @@ let toastTimer = null;
 function checkAuth() {
     const sessionRaw = sessionStorage.getItem('admin_secure_session');
     if (!sessionRaw) {
-        window.location.href = 'admin.html';
+        window.location.href = '/admin';
         return false;
     }
 
@@ -63,7 +63,7 @@ function logout() {
     } catch (e) {
         console.error('Logout cleanup error:', e);
     }
-    window.location.href = 'admin.html';
+    window.location.href = '/admin';
 }
 
 // ============================================================================
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     verifyBtn.innerHTML = '✓ Успішно! Вхід...';
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/dashboard';
                     }, 500);
                 }
             } catch (err) {
@@ -517,6 +517,7 @@ async function loadDashboardData() {
         renderCottages();
         renderClients();
         loadPromos();
+        loadSiteSettings();
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showToast('Не вдалося завантажити дані. Оновіть сторінку.', 'error');
@@ -951,7 +952,7 @@ function renderCottages() {
                     <div class="cottage-card-title">${escapeHtml(c.name)}</div>
                     <div class="cottage-card-meta">
                         Гостей: ${c.guest_count || '—'} • Номери: ${escapeHtml(c.cottage_numbers || '—')}<br>
-                        Поверхів: ${c.floors || '—'} • Спалень: ${c.bedrooms || '—'}
+                        Поверхів: ${c.floors || '—'} • Спалень: ${c.bedrooms || '—'} • <span style="color:#34d399; font-weight:500;">Тариф: ${escapeHtml(c.tariff || 'Rack Rate')}</span>
                     </div>
                 </div>
                 <span class="badge ${c.status === 'active' ? 'badge-active' : 'badge-inactive'}">
@@ -959,7 +960,7 @@ function renderCottages() {
                 </span>
             </div>
             <div class="cottage-card-price">${Number(c.price || 0).toLocaleString('uk-UA')} ₴ / ніч</div>
-            ${c.description ? `<div class="cottage-card-meta">${escapeHtml(c.description)}</div>` : ''}
+            ${c.description ? `<div class="cottage-card-meta" style="max-height:80px; overflow:hidden; text-overflow:ellipsis; white-space:pre-line;">${escapeHtml(c.description)}</div>` : ''}
             <div class="cottage-card-actions">
                 <button class="btn-sm btn-edit" onclick="editCottage('${c.id}')">Редагувати</button>
                 <button class="btn-sm btn-delete" onclick="deleteCottage('${c.id}')">Видалити</button>
@@ -1055,19 +1056,40 @@ async function uploadCottagePhotos(files) {
     }
 }
 
+function addFeatureChip(text) {
+    const textarea = document.getElementById('c-features');
+    if (!textarea) return;
+    const current = textarea.value.trim();
+    const bullet = text.startsWith('•') ? text : '• ' + text;
+    if (current.includes(text)) return;
+    textarea.value = current ? `${current}\n${bullet}` : bullet;
+    textarea.focus();
+}
+
 function openCottageModal(id) {
     const c = id ? allCottages.find(x => x.id === id) : null;
 
     document.getElementById('modal-cottage-title').textContent = c ? 'Редагувати котедж' : 'Додати котедж';
     document.getElementById('cottage-id').value = c ? c.id : '';
     document.getElementById('c-name').value = c ? (c.name || '') : '';
+    document.getElementById('c-tariff').value = c ? (c.tariff || 'Rack Rate') : 'Rack Rate';
     document.getElementById('c-guests').value = c ? (c.guest_count || 1) : '';
     document.getElementById('c-numbers').value = c ? (c.cottage_numbers || '') : '';
     document.getElementById('c-floors').value = c ? (c.floors || 1) : '';
     document.getElementById('c-bedrooms').value = c ? (c.bedrooms || 1) : '';
     document.getElementById('c-price').value = c ? (c.price || '') : '';
     document.getElementById('c-status').value = c ? (c.status || 'active') : 'active';
-    document.getElementById('c-description').value = c ? (c.description || '') : '';
+
+    // Розбір опису на особливості (булети) та текстову примітку
+    const desc = (c && c.description) ? c.description : '';
+    const lines = desc.split('\n').map(l => l.trim()).filter(Boolean);
+    const bullets = lines.filter(l => l.startsWith('•') || l.startsWith('-')).map(l => l.replace(/^[•\-]\s*/, ''));
+    const notes = lines.filter(l => !l.startsWith('•') && !l.startsWith('-')).join('\n');
+
+    document.getElementById('c-features').value = bullets.length > 0
+        ? bullets.map(b => '• ' + b).join('\n')
+        : (c ? '' : '• Кухня-студія зі зручним розкладним диваном\n• Спальня з королівським двоспальним ліжком\n• Санвузол з підігрівом підлоги та душовою\n• Простора тераса з власною зоною барбекю та меблями');
+    document.getElementById('c-description').value = notes || (c ? '' : 'Комфортний котедж з усіма зручностями серед мальовничої природи Карпат.');
 
     cottagePhotosState = c ? parseCottagePhotos(c.photos) : [];
     renderCottagePhotosEditor();
@@ -1084,16 +1106,24 @@ function editCottage(id) {
 }
 
 async function saveCottage() {
+    const rawFeatures = document.getElementById('c-features').value.trim();
+    const featureLines = rawFeatures
+        ? rawFeatures.split('\n').map(l => l.trim()).filter(Boolean).map(l => (l.startsWith('•') || l.startsWith('-')) ? l : '• ' + l)
+        : [];
+    const noteText = document.getElementById('c-description').value.trim();
+    const combinedDescription = [...featureLines, ...(noteText ? [noteText] : [])].join('\n');
+
     const payload = {
         id: document.getElementById('cottage-id').value,
         name: document.getElementById('c-name').value.trim(),
+        tariff: document.getElementById('c-tariff').value.trim() || 'Rack Rate',
         guest_count: parseInt(document.getElementById('c-guests').value, 10) || 1,
         cottage_numbers: document.getElementById('c-numbers').value.trim(),
         floors: parseInt(document.getElementById('c-floors').value, 10) || 1,
         bedrooms: parseInt(document.getElementById('c-bedrooms').value, 10) || 1,
         price: parseFloat(document.getElementById('c-price').value) || 0,
         status: document.getElementById('c-status').value,
-        description: document.getElementById('c-description').value.trim(),
+        description: combinedDescription,
         photos: parseCottagePhotos(document.getElementById('c-photos').value).join(', ')
     };
 
@@ -1145,6 +1175,114 @@ async function deleteCottage(id) {
     } catch (err) {
         console.error('Delete cottage error:', err);
         showToast('Помилка видалення котеджу', 'error');
+    }
+}
+
+// ---------- Розділ "Налаштування сайту" ----------
+
+let allSiteSettings = {};
+
+async function loadSiteSettings() {
+    try {
+        const { data, error } = await supabaseClient.rpc('admin_get_settings', {
+            p_token: adminToken
+        });
+
+        if (error) throw error;
+        if (!data || data.status === 'unauthorized') {
+            return;
+        }
+
+        allSiteSettings = data.settings || {};
+        renderSiteSettings(allSiteSettings);
+    } catch (err) {
+        console.error('Error loading site settings:', err);
+        renderSiteSettings({});
+    }
+}
+
+function renderSiteSettings(s) {
+    const setVal = (id, val, defaultVal = '') => {
+        const el = document.getElementById(id);
+        if (el) el.value = (val != null && val !== '') ? val : defaultVal;
+    };
+
+    // Умови тарифу
+    const tariffInc = s.tariff_includes != null
+        ? s.tariff_includes.split('|').join('\n')
+        : 'Безкоштовне скасування бронювання за 7 днів до заїзду\nСніданок «Шведська лінія» включено у вартість\nБезлімітний доступ до басейну та SPA-комплексу Rosa';
+    setVal('set-tariff-includes', tariffInc);
+
+    // Інформаційний футер котеджу
+    const footer = s.cottage_details_footer != null
+        ? s.cottage_details_footer.split('|').join('\n')
+        : 'Котеджі повністю оснащені усім необхідним для комфортного проживання — вам варто взяти лише особисті речі.\n* Додаткове місце в котеджі оплачується окремо.\nНа території містечка є всі необхідні зручності: ресторан, дитячий та спортивний майданчики, власна парковка, цілодобова охорона, спа-комплекс, а розваги курорту Буковель — всього за 2 км.\nДо зустрічі в EcoBerghaus! Чекаємо на знайомство з вами 💛';
+    setVal('set-cottage-footer', footer);
+
+    // Правила та терміни
+    setVal('set-checkin-time', s.checkin_time, '15:00');
+    setVal('set-checkout-time', s.checkout_time, '11:00');
+    setVal('set-min-standard', s.min_stay_standard, '2');
+    setVal('set-min-holidays', s.min_stay_holidays, '4');
+
+    // Контакти
+    setVal('set-contact-phone', s.contact_phone, '+38 (067) 000-00-00');
+    setVal('set-contact-email', s.contact_email, 'booking.depart@gmail.com');
+    setVal('set-contact-telegram', s.contact_telegram, 'https://t.me/ecoberghaus');
+    setVal('set-contact-instagram', s.contact_instagram, 'https://instagram.com/ecoberghaus');
+    setVal('set-contact-address', s.contact_address, 'Івано-Франківська область, с. Поляниця, ур. Прелуки, Буковель');
+
+    // Реквізити
+    setVal('set-payment-recipient', s.payment_recipient, 'ФОП EcoBerghaus');
+    setVal('set-payment-edrpou', s.payment_edrpou, '00000000');
+    setVal('set-payment-iban', s.payment_iban, 'UA000000000000000000000000000');
+    setVal('set-payment-purpose', s.payment_purpose, 'Оплата за проживання у котеджі згідно рахунку');
+}
+
+async function saveAllSettings() {
+    const getVal = (id) => (document.getElementById(id) ? document.getElementById(id).value.trim() : '');
+
+    const tariffIncludes = getVal('set-tariff-includes').split('\n').map(l => l.trim()).filter(Boolean).join('|');
+    const cottageFooter = getVal('set-cottage-footer').split('\n').map(l => l.trim()).filter(Boolean).join('|');
+
+    const payload = {
+        tariff_includes: tariffIncludes,
+        cottage_details_footer: cottageFooter,
+        checkin_time: getVal('set-checkin-time') || '15:00',
+        checkout_time: getVal('set-checkout-time') || '11:00',
+        min_stay_standard: getVal('set-min-standard') || '2',
+        min_stay_holidays: getVal('set-min-holidays') || '4',
+        contact_phone: getVal('set-contact-phone'),
+        contact_email: getVal('set-contact-email'),
+        contact_telegram: getVal('set-contact-telegram'),
+        contact_instagram: getVal('set-contact-instagram'),
+        contact_address: getVal('set-contact-address'),
+        payment_recipient: getVal('set-payment-recipient'),
+        payment_edrpou: getVal('set-payment-edrpou'),
+        payment_iban: getVal('set-payment-iban'),
+        payment_purpose: getVal('set-payment-purpose')
+    };
+
+    try {
+        const { data, error } = await supabaseClient.rpc('admin_save_settings', {
+            p_token: adminToken,
+            p_settings: payload
+        });
+
+        if (error) throw error;
+        if (!data || data.status === 'unauthorized') {
+            showToast('Сесію завершено. Увійдіть знову.', 'error');
+            setTimeout(logout, 1200);
+            return;
+        }
+
+        refreshClientSession();
+        updateSessionTimer();
+        showToast('Всі налаштування успішно збережено!', 'success');
+        await loadSiteSettings();
+    } catch (err) {
+        console.error('Save site settings error:', err);
+        showToast('Помилка збереження налаштувань', 'error');
     }
 }
 

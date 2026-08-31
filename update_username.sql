@@ -91,8 +91,8 @@ INSERT INTO admin_users (username, email, password_hash, role)
 VALUES (
     'admin',
     'admin@ecoberghaus.com.ua',
-    crypt('EcoBerghaus2026!', gen_salt('bf', 12)),
+    crypt('ВКАЖІТЬ_ВЛАСНИЙ_ПАРОЛЬ', gen_salt('bf', 12)),
     'admin'
 )
 ON CONFLICT (username) DO UPDATE
-SET password_hash = crypt('EcoBerghaus2026!', gen_salt('bf', 12));
+SET password_hash = crypt('ВКАЖІТЬ_ВЛАСНИЙ_ПАРОЛЬ', gen_salt('bf', 12));

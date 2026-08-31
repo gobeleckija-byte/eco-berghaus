@@ -261,7 +261,7 @@
 
 <!-- ===== MODAL: COTTAGE ADD / EDIT ===== -->
 <div class="modal-overlay" id="modal-cottage">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width: 580px;">
         <div class="modal-header">
             <h2 id="modal-cottage-title">Додати котедж</h2>
             <button class="modal-close" onclick="closeModal('modal-cottage')">✕</button>
@@ -270,7 +270,26 @@
             <input type="hidden" id="cottage-id">
             <div class="form-group">
                 <label>Назва котеджу</label>
-                <input type="text" id="c-name" placeholder="Напр. Сімейний котедж A">
+                <input type="text" id="c-name" placeholder="Напр. Панорамний котедж з терасою">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Назва тарифу</label>
+                    <input type="text" id="c-tariff" placeholder="Rack Rate" list="tariff-presets">
+                    <datalist id="tariff-presets">
+                        <option value="Rack Rate">
+                        <option value="Сніданок включено">
+                        <option value="Без харчування">
+                        <option value="VIP All Inclusive">
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select id="c-status">
+                        <option value="active">Активний (доступний)</option>
+                        <option value="inactive">Неактивний (прихований)</option>
+                    </select>
+                </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -279,7 +298,7 @@
                 </div>
                 <div class="form-group">
                     <label>Номер(и) котеджу</label>
-                    <input type="text" id="c-numbers" placeholder="1, 2">
+                    <input type="text" id="c-numbers" placeholder="1, 2, 3">
                 </div>
             </div>
             <div class="form-row">
@@ -292,22 +311,28 @@
                     <input type="number" id="c-bedrooms" min="1" placeholder="2">
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Ціна за ніч (₴)</label>
-                    <input type="number" id="c-price" min="0" placeholder="4000">
-                </div>
-                <div class="form-group">
-                    <label>Статус</label>
-                    <select id="c-status">
-                        <option value="active">Активний</option>
-                        <option value="inactive">Неактивний</option>
-                    </select>
+            <div class="form-group">
+                <label>Ціна за добу (₴)</label>
+                <input type="number" id="c-price" min="0" placeholder="22000">
+            </div>
+            <div class="form-group">
+                <label>Особливості та комплектація котеджу (кожен пункт з нового рядка):</label>
+                <textarea id="c-features" style="min-height: 100px;" placeholder="• Кухня-студія зі зручним розкладним диваном&#10;• Спальня з королівським двоспальним ліжком&#10;• Санвузол з душовою кабіною&#10;• Простора тераса з власною зоною барбекю та меблями"></textarea>
+                <div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px;" id="feature-chips">
+                    <span style="font-size: 11.5px; color: #86b3a4; width: 100%; margin-bottom: 2px;">⚡ Швидке додавання:</span>
+                    <button type="button" class="btn-chip" onclick="addFeatureChip('Кухня-студія зі зручним розкладним диваном')">+ Кухня-студія</button>
+                    <button type="button" class="btn-chip" onclick="addFeatureChip('Спальня з королівським двоспальним ліжком')">+ Спальня king-size</button>
+                    <button type="button" class="btn-chip" onclick="addFeatureChip('Простора тераса з власною зоною барбекю та меблями для відпочинку')">+ Тераса з BBQ</button>
+                    <button type="button" class="btn-chip" onclick="addFeatureChip('Панорамний вид на Карпатські гори')">+ Вид на гори</button>
+                    <button type="button" class="btn-chip" onclick="addFeatureChip('Затишний камін у вітальні')">+ Камін</button>
+                    <button type="button" class="btn-chip" onclick="addFeatureChip('Санвузол з підігрівом підлоги та душовою кабіною')">+ Санвузол</button>
+                    <button type="button" class="btn-chip" onclick="addFeatureChip('Швидкісний Wi-Fi та Smart TV')">+ Wi-Fi & TV</button>
+                    <button type="button" class="btn-chip" onclick="addFeatureChip('Власна сауна на дровах')">+ Сауна</button>
                 </div>
             </div>
             <div class="form-group">
-                <label>Опис</label>
-                <textarea id="c-description" placeholder="Опис котеджу..."></textarea>
+                <label>Загальний опис / примітки до котеджу</label>
+                <textarea id="c-description" placeholder="Комфортний котедж з усіма зручностями серед мальовничої природи Карпат."></textarea>
             </div>
             <div class="form-group">
                 <label>Фото котеджу (перше — головне на картці)</label>
@@ -364,6 +389,10 @@
             <div class="menu-item" data-section="promos-section">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
                 <span>Промокоди</span>
+            </div>
+            <div class="menu-item" data-section="settings-section">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Налаштування</span>
             </div>
         </div>
         <div class="sidebar-footer">
@@ -514,6 +543,124 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- ===== SETTINGS ===== -->
+        <div id="settings-section" class="section">
+            <div class="page-header">
+                <div>
+                    <h1>Налаштування сайту</h1>
+                    <p>Керування тарифами, текстами, правилами, контактами та реквізитами</p>
+                </div>
+                <button class="btn-add" onclick="saveAllSettings()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Зберегти всі налаштування
+                </button>
+            </div>
+
+            <div class="settings-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 24px;">
+                
+                <!-- Картка: Умови тарифу та інформація -->
+                <div class="content-section" style="margin-bottom:0;">
+                    <h3 style="color:#ecfdf5; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+                        <span>📋</span> Умови тарифу та інформація про котеджі
+                    </h3>
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Що входить у тариф (кожен пункт з нового рядка або розділений |)</label>
+                        <textarea id="set-tariff-includes" style="width:100%; min-height:90px; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:13.5px; font-family:inherit; resize:vertical; outline:none;" placeholder="Безкоштовне скасування бронювання за 7 днів...&#10;Сніданок «Шведська лінія» включено...&#10;Безлімітний доступ до басейну..."></textarea>
+                        <span style="font-size:12px; color:#5f8a7c; margin-top:4px; display:block;">Відображається на картках котеджів у випадаючому блоці "Тариф".</span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Інформаційний текст у вікні котеджу (Інфраструктура містечка)</label>
+                        <textarea id="set-cottage-footer" style="width:100%; min-height:120px; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:13.5px; font-family:inherit; resize:vertical; outline:none;" placeholder="Котеджі повністю оснащені усім необхідним...&#10;На території містечка є всі необхідні зручності: ресторан, спа-комплекс..."></textarea>
+                        <span style="font-size:12px; color:#5f8a7c; margin-top:4px; display:block;">Відображається у модальному вікні котеджу "Детальніше" після списку особливостей.</span>
+                    </div>
+                </div>
+
+                <!-- Картка: Правила проживання та мінімальний термін -->
+                <div class="content-section" style="margin-bottom:0;">
+                    <h3 style="color:#ecfdf5; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+                        <span>⏱️</span> Правила заїзду та терміни
+                    </h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Час заїзду (Check-in)</label>
+                            <input type="text" id="set-checkin-time" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="15:00">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Час виїзду (Check-out)</label>
+                            <input type="text" id="set-checkout-time" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="11:00">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Мін. ночей (звичайні дні)</label>
+                            <input type="number" id="set-min-standard" min="1" max="30" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="2">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Мін. ночей (свята)</label>
+                            <input type="number" id="set-min-holidays" min="1" max="30" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="4">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Картка: Контакти та соціальні мережі -->
+                <div class="content-section" style="margin-bottom:0;">
+                    <h3 style="color:#ecfdf5; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+                        <span>📞</span> Контакти та соцмережі
+                    </h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Телефон бронювання</label>
+                            <input type="text" id="set-contact-phone" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="+38 (067) 000-00-00">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Email відділу бронювання</label>
+                            <input type="email" id="set-contact-email" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="booking.depart@gmail.com">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Посилання на Telegram</label>
+                            <input type="text" id="set-contact-telegram" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="https://t.me/ecoberghaus">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Посилання на Instagram</label>
+                            <input type="text" id="set-contact-instagram" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="https://instagram.com/ecoberghaus">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Адреса комплексу</label>
+                        <input type="text" id="set-contact-address" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="Івано-Франківська область, с. Поляниця, Буковель">
+                    </div>
+                </div>
+
+                <!-- Картка: Реквізити для оплати (Крок 4 Рахунок) -->
+                <div class="content-section" style="margin-bottom:0;">
+                    <h3 style="color:#ecfdf5; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+                        <span>💳</span> Банківські реквізити (для рахунку)
+                    </h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Отримувач (ФОП / ТОВ)</label>
+                            <input type="text" id="set-payment-recipient" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="ФОП EcoBerghaus">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Код ЄДРПОУ / РНОКПП</label>
+                            <input type="text" id="set-payment-edrpou" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="00000000">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">IBAN рахунок (UA...)</label>
+                        <input type="text" id="set-payment-iban" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none; font-family:monospace;" placeholder="UA000000000000000000000000000">
+                    </div>
+                    <div class="form-group">
+                        <label style="display:block; font-size:13px; color:#86b3a4; margin-bottom:6px;">Призначення платежу за замовчуванням</label>
+                        <input type="text" id="set-payment-purpose" style="width:100%; background:#0a1813; border:1px solid #234539; color:#ecfdf5; padding:10px 14px; border-radius:10px; font-size:14px; outline:none;" placeholder="Оплата за проживання згідно рахунку">
+                    </div>
+                </div>
+
             </div>
         </div>
 
