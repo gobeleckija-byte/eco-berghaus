@@ -409,6 +409,15 @@ function initDashboard() {
         });
     });
 
+    // Завантаження фото котеджу файлами
+    const photoFileInput = document.getElementById('c-photo-file');
+    if (photoFileInput) {
+        photoFileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files || []);
+            if (files.length > 0) uploadCottagePhotos(files);
+        });
+    }
+
     loadDashboardData();
 }
 
@@ -852,8 +861,10 @@ function renderCottages() {
 
     grid.innerHTML = allCottages.map(c => {
         const photos = parseCottagePhotos(c.photos);
+        const photoAlt = `Котедж ${c.name} — оренда в Буковелі | EcoBerghaus`;
         const photoHtml = photos.length > 0
-            ? `<img src="${escapeHtml(photos[0])}" alt="${escapeHtml(c.name)}"
+            ? `<img src="${escapeHtml(photos[0])}" alt="${escapeHtml(photoAlt)}" title="${escapeHtml(photoAlt)}"
+                   loading="lazy"
                    style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;"
                    onerror="this.style.display='none'">`
             : '';
@@ -889,6 +900,73 @@ function parseCottagePhotos(raw) {
     return list.map(p => p.trim()).filter(Boolean);
 }
 
+// ---------- Менеджер фото котеджу (завантаження файлами) ----------
+
+const COTTAGE_PHOTOS_URL = SUPABASE_URL + '/functions/v1/upload-cottage-photo';
+let cottagePhotosState = [];
+
+function renderCottagePhotosEditor() {
+    const listEl = document.getElementById('c-photos-list');
+    const hiddenEl = document.getElementById('c-photos');
+    if (!listEl || !hiddenEl) return;
+
+    const cottageName = (document.getElementById('c-name').value || 'котедж').trim();
+
+    listEl.innerHTML = cottagePhotosState.map((url, i) => `
+        <div style="position:relative; width:96px; height:76px; border-radius:10px; overflow:hidden; border:1px solid rgba(52,211,153,0.25);">
+            <img src="${escapeHtml(url)}" alt="Фото ${i + 1}: котедж ${escapeHtml(cottageName)} — EcoBerghaus Буковель"
+                 title="Котедж ${escapeHtml(cottageName)} — фото ${i + 1}" style="width:100%; height:100%; object-fit:cover;">
+            <button type="button" onclick="removeCottagePhoto(${i})"
+                    title="Видалити фото"
+                    style="position:absolute; top:2px; right:2px; width:20px; height:20px; border:none; border-radius:6px; background:rgba(15,23,42,0.8); color:#f87171; font-size:12px; cursor:pointer; line-height:1;">✕</button>
+            ${i === 0 ? '<span style="position:absolute; bottom:0; left:0; right:0; background:rgba(9,67,63,0.85); color:#ecfdf5; font-size:10px; text-align:center; padding:2px 0;">головне</span>' : ''}
+        </div>
+    `).join('');
+
+    hiddenEl.value = cottagePhotosState.join(', ');
+}
+
+function removeCottagePhoto(index) {
+    cottagePhotosState.splice(index, 1);
+    renderCottagePhotosEditor();
+}
+
+async function uploadCottagePhotos(files) {
+    const statusEl = document.getElementById('c-photo-upload-status');
+    let uploaded = 0;
+
+    for (const file of files) {
+        if (statusEl) statusEl.textContent = `Завантаження ${file.name}...`;
+
+        try {
+            const fd = new FormData();
+            fd.append('token', adminToken);
+            fd.append('file', file);
+
+            const res = await fetch(COTTAGE_PHOTOS_URL, { method: 'POST', body: fd });
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || !data.url) {
+                if (statusEl) statusEl.textContent = data.error || 'Помилка завантаження';
+                continue;
+            }
+
+            cottagePhotosState.push(data.url);
+            uploaded++;
+        } catch (err) {
+            console.error('Photo upload error:', err);
+            if (statusEl) statusEl.textContent = 'Помилка з\'єднання при завантаженні';
+        }
+    }
+
+    renderCottagePhotosEditor();
+    if (statusEl) {
+        statusEl.textContent = uploaded > 0
+            ? `Завантажено фото: ${uploaded}. Не забудьте зберегти котедж.`
+            : '';
+    }
+}
+
 function openCottageModal(id) {
     const c = id ? allCottages.find(x => x.id === id) : null;
 
@@ -902,7 +980,13 @@ function openCottageModal(id) {
     document.getElementById('c-price').value = c ? (c.price || '') : '';
     document.getElementById('c-status').value = c ? (c.status || 'active') : 'active';
     document.getElementById('c-description').value = c ? (c.description || '') : '';
-    document.getElementById('c-photos').value = c ? parseCottagePhotos(c.photos).join('\n') : '';
+
+    cottagePhotosState = c ? parseCottagePhotos(c.photos) : [];
+    renderCottagePhotosEditor();
+    const statusEl = document.getElementById('c-photo-upload-status');
+    if (statusEl) statusEl.textContent = '';
+    const fileEl = document.getElementById('c-photo-file');
+    if (fileEl) fileEl.value = '';
 
     openModal('modal-cottage');
 }
