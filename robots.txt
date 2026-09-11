@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /dashboard
+Disallow: /dashboard.html
+Disallow: /login
+Disallow: /supabase/
+Disallow: /test.html
+
+Sitemap: https://ecoberghaus.com.ua/sitemap.xml
