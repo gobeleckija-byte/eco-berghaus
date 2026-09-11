@@ -63,6 +63,16 @@ function buildBookingExcel(booking: Record<string, unknown>, cottageName: string
   const adults = Number(booking.adults_count) || 0;
   const children = Number(booking.children_count) || 0;
   const totalGuests = adults + children;
+  const basePrice = Number(booking.base_price) || 0;
+  const extraBedSelected = booking.extra_bed_selected === true || booking.extra_bed_selected === "true";
+  const extraBedPrice = Number(booking.extra_bed_price) || 0;
+  const discountAmount = Number(booking.discount_amount) || 0;
+  const totalPrice = Number(booking.total_price) || 0;
+
+  const money = (value: number) => `${value.toLocaleString("uk-UA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} ₴`;
 
   const nightLabel = (n: number) => {
     if (n === 1) return `${n} ніч`;
@@ -111,6 +121,11 @@ function buildBookingExcel(booking: Record<string, unknown>, cottageName: string
     ["🧑  Дорослих", adults],
     ["👶  Дітей", children],
     ["👥  Гостей загалом", totalGuests],
+    ["🛏  Додаткове місце", extraBedSelected ? "Так" : "Ні"],
+    ...(extraBedSelected ? [["💳  Вартість додаткового місця", money(extraBedPrice)] as [string, string]] : []),
+    ["💳  Вартість проживання", money(basePrice)],
+    ...(discountAmount > 0 ? [["🏷  Знижка", `-${money(discountAmount)}`] as [string, string]] : []),
+    ["✅  До сплати", money(totalPrice)],
   ];
 
   rows.forEach(([label, value], i) => {
@@ -242,7 +257,9 @@ serve(async (req: Request) => {
     const formData = new FormData();
     formData.append("chat_id", TELEGRAM_CHAT_ID);
     formData.append("caption", `📄 Документ бронювання: ${booking.guest_name} (${cottageName ?? "котедж не вказано"})`);
-    formData.append("document", new Blob([xlsxBytes], {
+    const documentBytes = new Uint8Array(xlsxBytes.byteLength);
+    documentBytes.set(xlsxBytes);
+    formData.append("document", new Blob([documentBytes.buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     }), fileName);
 
@@ -259,6 +276,7 @@ serve(async (req: Request) => {
     return json({ status: "ok" });
   } catch (err) {
     console.error("booking-excel error:", err);
-    return json({ error: err.message || "Внутрішня помилка сервера" }, 500);
+    const message = err instanceof Error ? err.message : "Внутрішня помилка сервера";
+    return json({ error: message }, 500);
   }
 });

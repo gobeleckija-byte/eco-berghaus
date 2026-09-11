@@ -678,6 +678,63 @@
     flex-wrap: wrap;
   }
 
+  .extra-bed-card-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 12px 0;
+    padding: 11px 12px;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    background: #f0fdf4;
+  }
+
+  .extra-bed-card-option.is-required {
+    border-color: #86efac;
+    background: #ecfdf5;
+  }
+
+  .extra-bed-card-option label {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    cursor: pointer;
+  }
+
+  .extra-bed-card-option input {
+    width: 16px;
+    height: 16px;
+    margin: 2px 0 0;
+    accent-color: #047857;
+    cursor: pointer;
+  }
+
+  .extra-bed-card-option input:disabled {
+    cursor: default;
+  }
+
+  .extra-bed-card-copy {
+    display: grid;
+    gap: 2px;
+    color: #14532d;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .extra-bed-card-copy small {
+    color: #64748b;
+    font-size: 12px;
+  }
+
+  .extra-bed-card-price {
+    flex: 0 0 auto;
+    color: #047857;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
   .tariff-trigger {
     display: flex;
     align-items: center;
@@ -1421,6 +1478,179 @@
       height: auto;
     }
   }
+
+  @media (max-width: 768px) {
+    #custom-header {
+      gap: 12px;
+      padding: 12px 16px;
+    }
+    #custom-header img { height: 36px; }
+    #custom-header > a:last-child {
+      flex: 0 1 auto;
+      gap: 5px !important;
+      font-size: 13px !important;
+      white-space: nowrap;
+    }
+    #customBookingContainer {
+      margin: 16px auto;
+      padding: 0 12px;
+    }
+    .booking-wrapper {
+      border-radius: 16px;
+      padding: 18px 16px 22px;
+    }
+    .promo-row {
+      gap: 8px;
+      justify-content: stretch;
+      margin-bottom: 16px;
+    }
+    .promo-input-box {
+      flex: 1;
+      width: auto;
+      min-width: 0;
+    }
+    .icon-btn-square { flex: 0 0 42px; }
+    .main-filter-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .filter-card { width: 100%; }
+    .date-card,
+    .guests-card {
+      flex: none;
+      min-width: 0;
+      width: 100%;
+    }
+    .date-card { padding: 0 16px; }
+    .guests-card {
+      justify-content: space-between;
+      padding: 0 14px;
+    }
+    .guest-counter-item {
+      gap: 6px;
+      font-size: 13px;
+    }
+    .search-action-btn {
+      width: 100%;
+      height: 54px;
+      justify-content: center;
+      padding: 0 20px;
+      border-radius: 12px;
+    }
+    .stepper-container { padding: 8px 0 0; }
+    .stepper-line-bg,
+    .stepper-line-active {
+      left: 10%;
+      right: 10%;
+    }
+    .step-node-item {
+      min-width: 0;
+      gap: 7px;
+    }
+    .step-label-text {
+      max-width: 72px;
+      font-size: 10px;
+      line-height: 1.2;
+      text-align: center;
+      white-space: normal;
+    }
+    .cottage-card-row {
+      min-height: 0;
+      border-radius: 16px;
+    }
+    .card-media-col {
+      min-width: 0;
+      height: 220px;
+    }
+    .carousel-wrapper { min-height: 0; }
+    .card-details-col { padding: 18px 16px; }
+    .card-header-top { flex-wrap: wrap; }
+    .card-title { font-size: 21px; }
+    .cottages-list-container { gap: 16px; }
+    .extra-bed-card-option { align-items: flex-start; }
+    .card-footer-row { align-items: stretch; }
+    .tariff-trigger { min-height: 40px; }
+    .price-action-group {
+      width: 100%;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .price-amount { font-size: 22px; }
+    .btn-choose-cottage {
+      min-height: 44px;
+      padding: 10px 20px;
+    }
+    .cottage-modal-overlay,
+    .booking-modal-overlay { padding: 12px; }
+    .modal-card-window,
+    .booking-modal-window {
+      max-height: 92vh;
+      border-radius: 16px;
+      padding: 20px 16px;
+    }
+    .modal-card-header { gap: 12px; }
+    .modal-card-title { font-size: 19px; }
+    .modal-main-img-wrap { height: 220px; }
+    .modal-gallery-right {
+      max-height: none;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .modal-thumb-img { height: 62px; }
+    .modal-card-footer {
+      flex-direction: column;
+      gap: 12px;
+    }
+    #booking-data-container {
+      margin: 18px auto 40px;
+      padding: 0 12px;
+    }
+    .checkout-card,
+    .booking-summary-card {
+      border-radius: 16px;
+      padding: 20px 16px;
+    }
+    .booking-for-toggle { margin-bottom: 16px; }
+    .booking-for-toggle label {
+      flex-basis: 100%;
+      min-width: 0;
+      padding: 10px 12px;
+    }
+    .summary-line,
+    .summary-price-line,
+    .summary-discount-line { align-items: flex-start; }
+    .summary-total-line { font-size: 17px; }
+    .invoice-card-success {
+      border-radius: 16px;
+      margin: 18px auto;
+      padding: 28px 18px;
+    }
+    .no-cottages-card { padding: 28px 18px; }
+    .suggested-dates-box { padding: 18px 14px; }
+    .suggested-chips-grid { grid-template-columns: 1fr; }
+    #colophon { padding: 32px 0 !important; }
+    #colophon > div { padding: 0 18px !important; }
+    #colophon > div > div {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 28px !important;
+    }
+    #colophon > div > div > div {
+      flex: none !important;
+      min-width: 0 !important;
+    }
+  }
+
+  @media (max-width: 360px) {
+    #custom-header { padding: 10px 12px; }
+    #custom-header img { height: 32px; }
+    #custom-header > a:last-child { font-size: 12px !important; }
+    .date-text { font-size: 13px; }
+    .guest-counter-item { font-size: 12px; }
+    .step-label-text { max-width: 60px; font-size: 9px; }
+    .extra-bed-card-option { gap: 8px; padding: 10px; }
+  }
 </style>
 
 <script>
@@ -1699,10 +1929,12 @@
         <div class="summary-line"><span>Діти:</span> <strong id="sum-children">-</strong></div>
         <div class="summary-line"><span>Заїзд:</span> <strong id="sum-checkin">-</strong></div>
         <div class="summary-line"><span>Виїзд:</span> <strong id="sum-checkout">-</strong></div>
+        <div class="summary-line" id="extra-bed-option" style="display:none;"></div>
 
         <div class="summary-divider"></div>
         <div class="summary-price-line"><span>Проживання:</span> <span id="sum-stay-line">-</span></div>
         <div class="summary-discount-line" id="sum-discount-row" style="display:none;"><span id="sum-discount-label">Знижка:</span> <span id="sum-discount-value">-</span></div>
+        <div class="summary-price-line" id="sum-extra-bed-row" style="display:none;"><span>Додаткове місце:</span> <span id="sum-extra-bed-price">-</span></div>
         <div class="summary-total-line"><span>До сплати:</span> <span id="sum-price">-</span></div>
 
         <p class="summary-note">Промокод застосовується на етапі пошуку. Оплата здійснюється за умовами підтвердженого бронювання.</p>
@@ -2263,6 +2495,8 @@ let roomsCount = 1;
 let adultsCount = 1;
 let childrenCount = 0;
 let appliedPromo = null;
+let extraBedSelected = false;
+let extraBedSelections = {};
 let currentSelectedCottage = null;
 let activeCottagesList = [];
 
@@ -2511,8 +2745,12 @@ async function performSearch(withAnimation = true) {
         .eq('status', 'active');
 
       if (!cError && dbCottages && dbCottages.length > 0) {
-        // Filter cottages by guest capacity
-        matchingCapacityCottages = dbCottages.filter(c => (parseInt(c.guest_count) || 1) >= totalGuests);
+        // Котедж із додатковим місцем може прийняти ще одного гостя.
+        matchingCapacityCottages = dbCottages.filter(c => {
+          const capacity = parseInt(c.guest_count, 10) || 1;
+          const extraBedEnabled = c.extra_bed_enabled === true || c.extra_bed_enabled === 'true';
+          return capacity >= totalGuests || (extraBedEnabled && capacity + 1 >= totalGuests);
+        });
 
         if (matchingCapacityCottages.length === 0) {
           noCapacityFound = true;
@@ -2536,6 +2774,9 @@ async function performSearch(withAnimation = true) {
           const freeCottages = matchingCapacityCottages.filter(c => !bookedCottageIds.has(c.id));
 
           cottages = freeCottages.map(c => {
+            const capacity = parseInt(c.guest_count, 10) || 1;
+            const extraBedEnabled = c.extra_bed_enabled === true || c.extra_bed_enabled === 'true';
+            const extraBedPrice = Math.max(0, parseFloat(c.extra_bed_price) || 0);
             const rawPhotos = c.photos ? (Array.isArray(c.photos) ? c.photos : c.photos.split(',').map(p => p.trim()).filter(Boolean)) : [];
             const photosList = rawPhotos.length > 0 ? rawPhotos : ['https://ecoberghaus.com.ua/wp-content/uploads/2023/11/img-cottage-05.jpg'];
             
@@ -2546,11 +2787,14 @@ async function performSearch(withAnimation = true) {
             return {
               id: c.id,
               name: c.name || 'Котедж',
-              guest_count: c.guest_count || 2,
+              guest_count: capacity,
               cottage_numbers: c.cottage_numbers || '101, 102',
               floors: c.floors || 1,
               bedrooms: c.bedrooms || 1,
               price: parseFloat(c.price) || 20000,
+              extra_bed_enabled: extraBedEnabled,
+              extra_bed_price: extraBedPrice,
+              requires_extra_bed: capacity < totalGuests,
               tariff: c.tariff || 'Rack Rate',
               status: c.status,
               remaining: 1,
@@ -2563,7 +2807,7 @@ async function performSearch(withAnimation = true) {
               ],
               description_note: restNote || c.description || 'Комфортний котедж з усіма зручностями серед мальовничої природи Карпат.'
             };
-          });
+          }).sort((a, b) => Number(a.requires_extra_bed) - Number(b.requires_extra_bed));
 
           // If all capacity-matching cottages are booked on current dates, find upcoming alternative dates
           if (cottages.length === 0) {
@@ -2670,7 +2914,9 @@ function renderCottagesCards(cottages, suggestedSlots = [], noCapacityFound = fa
     const photos = c.photos && c.photos.length > 0 ? c.photos : ['https://ecoberghaus.com.ua/wp-content/uploads/2023/11/img-cottage-05.jpg'];
     const basePrice = parseFloat(c.price) || 22000;
     const discount = appliedPromo && appliedPromo.discount ? appliedPromo.discount : 0;
-    const finalPrice = discount > 0 ? (basePrice * (1 - discount / 100)) : basePrice;
+    const discountedPrice = discount > 0 ? (basePrice * (1 - discount / 100)) : basePrice;
+    const cardExtraBedSelected = hasSelectedExtraBed(c);
+    const finalPrice = discountedPrice + (cardExtraBedSelected ? c.extra_bed_price : 0);
     const formattedPrice = finalPrice.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     const badgeText = getRemainingBadgeText(c.remaining || (idx + 1));
@@ -2717,7 +2963,7 @@ function renderCottagesCards(cottages, suggestedSlots = [], noCapacityFound = fa
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
-              <span>до ${c.guest_count} гостей</span>
+              <span>до ${c.guest_count} гостей${c.requires_extra_bed ? ' + додаткове місце' : ''}</span>
             </div>
             <button type="button" class="details-modal-btn" onclick="openDetailsModal('${c.id}')">
               Детальніше
@@ -2759,6 +3005,20 @@ function renderCottagesCards(cottages, suggestedSlots = [], noCapacityFound = fa
             </ul>
           </div>
 
+          ${c.extra_bed_enabled ? `
+            <div class="extra-bed-card-option ${c.requires_extra_bed ? 'is-required' : ''}" id="extra-bed-card-option-${c.id}">
+              <label for="extra-bed-card-input-${c.id}">
+                <input type="checkbox" id="extra-bed-card-input-${c.id}" ${cardExtraBedSelected ? 'checked' : ''} ${c.requires_extra_bed ? 'disabled' : ''}
+                  onchange="updateCottageExtraBedSelection('${c.id}', this.checked)">
+                <span class="extra-bed-card-copy">
+                  <strong>${c.requires_extra_bed ? 'Додаткове місце включено' : 'Додати додаткове місце'}</strong>
+                  <small>${c.requires_extra_bed ? `Потрібне для ${adultsCount + childrenCount} гостей.` : 'Виберіть перед переходом до оформлення.'}</small>
+                </span>
+              </label>
+              <span class="extra-bed-card-price">+${c.extra_bed_price.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ₴</span>
+            </div>
+          ` : ''}
+
           <!-- Footer Row: Tariff, Price, Action -->
           <div class="card-footer-row">
             <button type="button" class="tariff-trigger" onclick="toggleTariffDrawer('${c.id}')">
@@ -2769,7 +3029,7 @@ function renderCottagesCards(cottages, suggestedSlots = [], noCapacityFound = fa
             </button>
 
             <div class="price-action-group">
-              <div class="price-amount">${formattedPrice} ₴</div>
+              <div class="price-amount" id="cottage-price-${c.id}">${formattedPrice} ₴</div>
               <div class="price-info-btn" title="Ціна за обраний період проживання. Включає всі податки та збори.">ⓘ</div>
               <button type="button" class="btn-choose-cottage" onclick="startBooking('${c.id}')">Обрати</button>
             </div>
@@ -2915,6 +3175,58 @@ function setModalPhoto(idx) {
   });
 }
 
+function isExtraBedAvailable(cottage) {
+  return Boolean(cottage && (cottage.extra_bed_enabled === true || cottage.extra_bed_enabled === 'true'));
+}
+
+function hasSelectedExtraBed(cottage) {
+  return Boolean(isExtraBedAvailable(cottage) && (cottage.requires_extra_bed || extraBedSelections[cottage.id]));
+}
+
+function getCottageDisplayedPrice(cottage) {
+  const basePrice = parseFloat(cottage.price) || 22000;
+  const discount = appliedPromo && appliedPromo.discount ? appliedPromo.discount : 0;
+  const discountedPrice = discount > 0 ? basePrice * (1 - discount / 100) : basePrice;
+  const extraBedPrice = hasSelectedExtraBed(cottage) ? Math.max(0, parseFloat(cottage.extra_bed_price) || 0) : 0;
+  return discountedPrice + extraBedPrice;
+}
+
+function updateCottageExtraBedSelection(cottageId, selected) {
+  const cottage = activeCottagesList.find(item => item.id === cottageId);
+  if (!cottage || !isExtraBedAvailable(cottage)) return;
+
+  extraBedSelections[cottageId] = Boolean(cottage.requires_extra_bed || selected);
+  const input = document.getElementById(`extra-bed-card-input-${cottageId}`);
+  if (input) input.checked = hasSelectedExtraBed(cottage);
+
+  const price = document.getElementById(`cottage-price-${cottageId}`);
+  if (price) {
+    price.textContent = `${getCottageDisplayedPrice(cottage).toLocaleString('uk-UA', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })} ₴`;
+  }
+}
+
+function configureExtraBedOption(cottage) {
+  const option = document.getElementById('extra-bed-option');
+  if (!option) return;
+
+  if (!isExtraBedAvailable(cottage)) {
+    extraBedSelected = false;
+    option.innerHTML = '';
+    option.style.display = 'none';
+    return;
+  }
+
+  const price = Math.max(0, parseFloat(cottage.extra_bed_price) || 0);
+  extraBedSelected = hasSelectedExtraBed(cottage);
+  option.style.display = extraBedSelected ? 'flex' : 'none';
+  option.innerHTML = extraBedSelected
+    ? `<span>Додаткове місце:</span><strong>Додано (+${price.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ₴)</strong>`
+    : '';
+}
+
 // Step 3: Checkout "Ваші дані"
 function getCheckoutDetails() {
   const checkinDate = checkinCalendar && checkinCalendar.selectedDates[0] ? checkinCalendar.selectedDates[0] : new Date();
@@ -2925,26 +3237,15 @@ function getCheckoutDetails() {
   const basePrice = currentSelectedCottage ? (parseFloat(currentSelectedCottage.price) || 22000) : 0;
   const discount = appliedPromo && appliedPromo.discount ? appliedPromo.discount : 0;
   const discountValue = discount > 0 ? basePrice * discount / 100 : 0;
-  const finalPrice = basePrice - discountValue;
+  const selectedExtraBed = extraBedSelected && isExtraBedAvailable(currentSelectedCottage);
+  const extraBedPrice = selectedExtraBed ? Math.max(0, parseFloat(currentSelectedCottage.extra_bed_price) || 0) : 0;
+  const finalPrice = basePrice - discountValue + extraBedPrice;
 
-  return { checkinDate, checkoutDate, diffNights, basePrice, discount, discountValue, finalPrice };
+  return { checkinDate, checkoutDate, diffNights, basePrice, discount, discountValue, selectedExtraBed, extraBedPrice, finalPrice };
 }
 
-function startBooking(cottageId) {
-  const cottage = activeCottagesList.find(c => c.id === cottageId);
-  if (!cottage) return;
-
-  currentSelectedCottage = cottage;
-  setBookingStep(3);
-
+function updateBookingPriceSummary() {
   const d = getCheckoutDetails();
-
-  document.getElementById('sum-cottage-name').textContent = cottage.name;
-  document.getElementById('sum-cottage-type').textContent = `Панорамний котедж № ${cottage.cottage_numbers || '—'}`;
-  document.getElementById('sum-adults').textContent = adultsCount;
-  document.getElementById('sum-children').textContent = childrenCount;
-  document.getElementById('sum-checkin').textContent = formatUADate(d.checkinDate);
-  document.getElementById('sum-checkout').textContent = formatUADate(d.checkoutDate);
   document.getElementById('sum-stay-line').textContent = `${d.diffNights} ${d.diffNights === 1 ? 'ніч' : (d.diffNights < 5 ? 'ночі' : 'ночей')} — ${d.basePrice.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ₴`;
 
   const discountRow = document.getElementById('sum-discount-row');
@@ -2956,7 +3257,34 @@ function startBooking(cottageId) {
     discountRow.style.display = 'none';
   }
 
+  const extraBedRow = document.getElementById('sum-extra-bed-row');
+  if (d.selectedExtraBed) {
+    extraBedRow.style.display = 'flex';
+    document.getElementById('sum-extra-bed-price').textContent = `+${d.extraBedPrice.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ₴`;
+  } else {
+    extraBedRow.style.display = 'none';
+  }
+
   document.getElementById('sum-price').textContent = `${d.finalPrice.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ₴`;
+  return d;
+}
+
+function startBooking(cottageId) {
+  const cottage = activeCottagesList.find(c => c.id === cottageId);
+  if (!cottage) return;
+
+  currentSelectedCottage = cottage;
+  setBookingStep(3);
+
+  configureExtraBedOption(cottage);
+  const d = updateBookingPriceSummary();
+
+  document.getElementById('sum-cottage-name').textContent = cottage.name;
+  document.getElementById('sum-cottage-type').textContent = `Панорамний котедж № ${cottage.cottage_numbers || '—'}`;
+  document.getElementById('sum-adults').textContent = adultsCount;
+  document.getElementById('sum-children').textContent = childrenCount;
+  document.getElementById('sum-checkin').textContent = formatUADate(d.checkinDate);
+  document.getElementById('sum-checkout').textContent = formatUADate(d.checkoutDate);
 
   // Ховаємо результати пошуку, показуємо крок 3
   const resultsWrapper = document.getElementById('cottages-results-wrapper');
@@ -3040,6 +3368,11 @@ function showBookingConfirmation(bookingCode, name, phone, checkin, checkout, ex
             <span style="color:#64748b;">Проживання (${d.diffNights} ${d.diffNights === 1 ? 'ніч' : (d.diffNights < 5 ? 'ночі' : 'ночей')}):</span>
             <span style="color:#0f172a; font-weight:500;">${d.basePrice.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ₴</span>
           </div>
+          ${d.selectedExtraBed ? `
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;">
+            <span style="color:#64748b;">Додаткове місце:</span>
+            <span style="color:#0f172a; font-weight:500;">+${d.extraBedPrice.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ₴</span>
+          </div>` : ''}
           ${d.discount > 0 ? `
           <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;">
             <span style="color:#059669; font-weight:600;">Знижка (промокод ${appliedPromo.code}, -${d.discount}%):</span>
@@ -3141,6 +3474,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Додаткові дані гостя пакуємо в notes, щоб усе дійшло до адмінки
       const notesParts = [`Котедж: ${currentSelectedCottage ? currentSelectedCottage.name : '-'}`];
+      if (d.selectedExtraBed) notesParts.push(`Додаткове місце: так (+${d.extraBedPrice.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ₴)`);
       if (bookingFor === 'guest') notesParts.push('Бронювання для іншого гостя');
       if (guestMiddlename) notesParts.push(`По батькові: ${guestMiddlename}`);
       if (guestEmail) notesParts.push(`Email: ${guestEmail}`);
@@ -3163,6 +3497,8 @@ document.addEventListener('DOMContentLoaded', () => {
             adults_count: adultsCount,
             children_count: childrenCount,
             cottage_id: (currentSelectedCottage && currentSelectedCottage.id && currentSelectedCottage.id.length === 36) ? currentSelectedCottage.id : null,
+            extra_bed_selected: d.selectedExtraBed,
+            discount_percent: d.discount,
             notes: combinedNotes
           },
           p_identifier: clientId

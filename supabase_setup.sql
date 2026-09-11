@@ -8,6 +8,12 @@ CREATE TABLE IF NOT EXISTS bookings (
     guest_phone TEXT NOT NULL,
     adults_count INTEGER DEFAULT 1,
     children_count INTEGER DEFAULT 0,
+    base_price NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    extra_bed_selected BOOLEAN NOT NULL DEFAULT FALSE,
+    extra_bed_price NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    discount_percent NUMERIC(5, 2) NOT NULL DEFAULT 0,
+    discount_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    total_price NUMERIC(12, 2) NOT NULL DEFAULT 0,
     status TEXT DEFAULT 'pending', -- pending, confirmed, cancelled
     notes TEXT,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -55,6 +61,8 @@ CREATE TABLE IF NOT EXISTS cottages (
     floors INTEGER NOT NULL,
     bedrooms INTEGER NOT NULL,
     price NUMERIC NOT NULL,
+    extra_bed_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    extra_bed_price NUMERIC(12, 2) NOT NULL DEFAULT 0,
     tariff TEXT,
     status TEXT DEFAULT 'active',
     description TEXT NOT NULL,

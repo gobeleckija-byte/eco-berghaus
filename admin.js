@@ -466,6 +466,23 @@ function initDashboard() {
     // Автоматичний вихід при закінченні сесії + лічильник часу в сайдбарі
     startSessionWatch();
 
+    const sidebar = document.querySelector('.sidebar');
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+
+    const setMobileMenuOpen = (isOpen) => {
+        if (!sidebar || !mobileMenuToggle) return;
+        sidebar.classList.toggle('menu-open', isOpen);
+        mobileMenuToggle.setAttribute('aria-expanded', String(isOpen));
+        mobileMenuToggle.setAttribute('aria-label', isOpen ? 'Закрити меню' : 'Відкрити меню');
+        mobileMenuToggle.setAttribute('title', isOpen ? 'Закрити меню' : 'Відкрити меню');
+    };
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', () => {
+            setMobileMenuOpen(!sidebar?.classList.contains('menu-open'));
+        });
+    }
+
     // Перемикання розділів меню
     const menuItems = document.querySelectorAll('.menu-item[data-section]');
     menuItems.forEach(item => {
@@ -476,7 +493,12 @@ function initDashboard() {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             const target = document.getElementById(item.dataset.section);
             if (target) target.classList.add('active');
+            setMobileMenuOpen(false);
         });
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') setMobileMenuOpen(false);
     });
 
     // Завантаження фото котеджу файлами
@@ -960,6 +982,7 @@ function renderCottages() {
                 </span>
             </div>
             <div class="cottage-card-price">${Number(c.price || 0).toLocaleString('uk-UA')} ₴ / ніч</div>
+            ${c.extra_bed_enabled ? `<div class="cottage-card-meta" style="color:#86efac; margin-bottom:8px;">Додаткове місце: +${Number(c.extra_bed_price || 0).toLocaleString('uk-UA')} ₴</div>` : ''}
             ${c.description ? `<div class="cottage-card-meta" style="max-height:80px; overflow:hidden; text-overflow:ellipsis; white-space:pre-line;">${escapeHtml(c.description)}</div>` : ''}
             <div class="cottage-card-actions">
                 <button class="btn-sm btn-edit" onclick="editCottage('${c.id}')">Редагувати</button>
@@ -1066,6 +1089,14 @@ function addFeatureChip(text) {
     textarea.focus();
 }
 
+function toggleExtraBedPriceInput() {
+    const enabledInput = document.getElementById('c-extra-bed-enabled');
+    const priceGroup = document.getElementById('c-extra-bed-price-group');
+    if (!enabledInput || !priceGroup) return;
+
+    priceGroup.style.display = enabledInput.checked ? 'block' : 'none';
+}
+
 function openCottageModal(id) {
     const c = id ? allCottages.find(x => x.id === id) : null;
 
@@ -1079,6 +1110,9 @@ function openCottageModal(id) {
     document.getElementById('c-bedrooms').value = c ? (c.bedrooms || 1) : '';
     document.getElementById('c-price').value = c ? (c.price || '') : '';
     document.getElementById('c-status').value = c ? (c.status || 'active') : 'active';
+    document.getElementById('c-extra-bed-enabled').checked = Boolean(c && c.extra_bed_enabled);
+    document.getElementById('c-extra-bed-price').value = c && c.extra_bed_price != null ? c.extra_bed_price : '';
+    toggleExtraBedPriceInput();
 
     // Розбір опису на особливості (булети) та текстову примітку
     const desc = (c && c.description) ? c.description : '';
@@ -1106,6 +1140,15 @@ function editCottage(id) {
 }
 
 async function saveCottage() {
+    const extraBedEnabled = document.getElementById('c-extra-bed-enabled').checked;
+    const extraBedPriceInput = document.getElementById('c-extra-bed-price');
+    const extraBedPrice = parseFloat(extraBedPriceInput.value);
+
+    if (extraBedEnabled && (!extraBedPriceInput.value.trim() || Number.isNaN(extraBedPrice) || extraBedPrice < 0)) {
+        showToast('Вкажіть коректну вартість додаткового місця', 'error');
+        return;
+    }
+
     const rawFeatures = document.getElementById('c-features').value.trim();
     const featureLines = rawFeatures
         ? rawFeatures.split('\n').map(l => l.trim()).filter(Boolean).map(l => (l.startsWith('•') || l.startsWith('-')) ? l : '• ' + l)
@@ -1122,6 +1165,8 @@ async function saveCottage() {
         floors: parseInt(document.getElementById('c-floors').value, 10) || 1,
         bedrooms: parseInt(document.getElementById('c-bedrooms').value, 10) || 1,
         price: parseFloat(document.getElementById('c-price').value) || 0,
+        extra_bed_enabled: extraBedEnabled,
+        extra_bed_price: extraBedEnabled ? extraBedPrice : 0,
         status: document.getElementById('c-status').value,
         description: combinedDescription,
         photos: parseCottagePhotos(document.getElementById('c-photos').value).join(', ')
@@ -1182,19 +1227,32 @@ async function deleteCottage(id) {
 
 let allSiteSettings = {};
 
+function showSettingsPanel(panelId) {
+    const requestedPanel = document.getElementById(panelId);
+    if (!requestedPanel) return;
+
+    document.querySelectorAll('#settings-section .settings-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === panelId);
+    });
+    document.querySelectorAll('#settings-section .settings-tab').forEach(tab => {
+        const isActive = tab.dataset.settingsPanel === panelId;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', String(isActive));
+    });
+}
+
 function updateSiteStatusPreview() {
     const sel = document.getElementById('set-site-closed');
     const icon = document.getElementById('site-status-icon');
     const card = document.getElementById('site-status-card');
     if (!sel || !icon || !card) return;
 
-    if (sel.value === 'true') {
-        icon.textContent = '🔴';
-        card.style.borderColor = 'rgba(239, 68, 68, 0.45)';
-    } else {
-        icon.textContent = '🟢';
-        card.style.borderColor = 'rgba(52, 211, 153, 0.25)';
-    }
+    const isClosed = sel.value === 'true';
+    icon.textContent = isClosed ? '🔴' : '🟢';
+    card.classList.toggle('is-closed', isClosed);
+
+    const label = document.getElementById('site-status-label');
+    if (label) label.textContent = isClosed ? 'Сайт закритий' : 'Сайт відкритий';
 }
 
 async function loadSiteSettings() {
